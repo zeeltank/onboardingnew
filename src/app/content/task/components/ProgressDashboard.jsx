@@ -607,7 +607,7 @@ const ProgressDashboard = () => {
     {
       name: "Actions",
       cell: row => (
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2" id="task-table-actions">
           <Button
             variant="ghost"
             size="icon"
@@ -671,7 +671,7 @@ const ProgressDashboard = () => {
           <p className="text-muted-foreground text-sm">Track and monitor task assignment progress</p>
         </div> */}
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3" id="task-filters">
           <Select
             options={departmentOptions}
             value={departmentFilter}
@@ -700,13 +700,13 @@ const ProgressDashboard = () => {
             className="w-40"
           />
 
-          <Button variant="outline" size="sm" iconName="Download" iconPosition="left">
+          <Button variant="outline" size="sm" iconName="Download" iconPosition="left" id="task-export">
             Export
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="task-dashboard-stats">
         {stats.map((stat, index) => (
           <div key={index} className="bg-card border border-border rounded-lg p-6">
             <div className="flex items-left space-x-10">
@@ -724,7 +724,7 @@ const ProgressDashboard = () => {
         ))}
       </div>
 
-      <div className="bg-card ">
+      <div className="bg-card " id="task-data-table">
         <div className="p-3">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-foreground">Task Assignments</h3>

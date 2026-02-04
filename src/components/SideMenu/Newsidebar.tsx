@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from "react";
-import { useRouter } from "next/navigation";
-import { CornerDownRight, ChevronLeft, ChevronRight, Home } from "lucide-react"; // Added Home icon
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { CornerDownRight, ChevronLeft, ChevronRight, Home } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserProfile } from "./UserProfile";
 import GlobalFooter from "./GlobalFooter"; // Import GlobalFooter
@@ -42,6 +42,8 @@ interface SectionItem {
     key: string;
     label: string;
     icon: React.ReactNode;
+    page_type?: string;
+    access_link?: string;
     subItems: SubItem[];
 }
 interface UserSessionDataProps {
@@ -184,13 +186,14 @@ const SubMenuItem = ({
                 className="pl-1 rounded-[12px]"
                 style={{
                     background: "rgba(71, 160, 255, 0.35)",
-                    boxShadow: "0 0 6px 0 rgba(0,0,0,0.1)",
+                    boxShadow: "0 0 6px 0 rgba(0,0,0,0,0.1)",
 
                 }}
             >
                 <div className="bg-white rounded-[12px] overflow-hidden shadow-sm">
 
                     <button
+                        id={`tour-sub-${item.key}`}
                         onClick={handleClick}
                         className={`w-full h-[42px] flex items-center justify-between px-[18px] rounded-md transition-all  hover:bg-blue-200 
     ${isActive ? "bg-blue-200 font-semibold " : ""}
@@ -303,7 +306,23 @@ const Section = ({
             onExpandSidebar();
             return;
         }
-        onToggle();
+        // If section has an access_link with page_type, navigate to it or open in new tab
+        if (section.access_link) {
+            if (section.page_type === "link") {
+                window.open(section.access_link, "_blank");
+            } else if (section.page_type === "page") {
+                const normalizedLink = section.access_link.startsWith("/")
+                    ? section.access_link
+                    : `/${section.access_link}`;
+                router.push(normalizedLink);
+            }
+            onSetActiveSection(section.key);
+            localStorage.setItem("activeSection", section.key);
+            localStorage.removeItem("activeSubItem");
+            localStorage.removeItem("activeSubSubItem");
+        } else {
+            onToggle();
+        }
     };
 
     return (
@@ -505,6 +524,8 @@ const useMenuData = (sessionData: any) => {
                         key: String(l1.id),
                         label: l1.menu_name,
                         icon: <i className={l1.icon}></i>,
+                        page_type: l1.page_type,
+                        access_link: l1.access_link,
                         subItems,
                     };
                 });
@@ -527,7 +548,9 @@ const useMenuData = (sessionData: any) => {
 
     return { sections, loading, error, fetchMenuData };
 };
+
 const DASHBOARD_KEY = "___dashboard___";
+
 // Dashboard Section Component
 const DashboardSection = ({
     isCollapsed,
@@ -624,6 +647,7 @@ const DashboardSection = ({
 
 export default function Sidebar({ mobileOpen, onClose, userSessionData }: SidebarProps) {
     const router = useRouter();
+    const pathname = usePathname();  // Track pathname for route changes
     const [open, setOpen] = useState<OpenState>({});
     const [activeSection, setActiveSection] = useState<string>();
     const [activeSubItem, setActiveSubItem] = useState<string>();
@@ -641,9 +665,80 @@ export default function Sidebar({ mobileOpen, onClose, userSessionData }: Sideba
         lastName: "",
     });
     const [isCollapsed, setIsCollapsed] = useState(false);
-    const tourGuideRef = useRef<SidebarTourGuide | null>(null);
 
     const { sections, loading, error, fetchMenuData } = useMenuData(sessionData);
+
+    // Tour instance ref
+    const tourRef = useRef<SidebarTourGuide | null>(null);
+
+    // Initialize tour guide when sections are loaded
+    useEffect(() => {
+        if (sections.length > 0 && !tourRef.current) {
+            tourRef.current = new SidebarTourGuide(
+                sections,
+                () => setIsCollapsed(false),
+                (sectionKey: string) => setOpen(o => ({ ...o, [sectionKey]: true })),
+                (subKey: string) => setSubOpen(s => ({ ...s, [subKey]: true })),
+                (key: string) => setActiveSection(key),
+                () => !isCollapsed,
+                (url: string) => router.push(url)
+            );
+            console.log('SidebarTourGuide initialized');
+        }
+    }, [sections, isCollapsed, router]);
+
+    // Listen for page tour complete event and resume sidebar tour
+    useEffect(() => {
+        const handlePageTourComplete = () => {
+            console.log('[Sidebar] Page tour completed, checking if sidebar tour should resume...');
+
+            // Check if there's a paused tour to resume
+            const savedPausedStep = localStorage.getItem('sidebarTourPausedStep');
+            const returnToSidebarTour = localStorage.getItem('returnToSidebarTour');
+
+            if (savedPausedStep && returnToSidebarTour === 'true') {
+                console.log('Found paused tour state, resuming sidebar tour...');
+                // Clear the return flag
+                localStorage.removeItem('returnToSidebarTour');
+
+                // Resume the tour after a short delay to allow UI to settle
+                setTimeout(() => {
+                    if (tourRef.current) {
+                        tourRef.current.resumeTour();
+                    }
+                }, 500);
+            }
+        };
+
+        window.addEventListener('page-tour-complete', handlePageTourComplete);
+
+        return () => {
+            window.removeEventListener('page-tour-complete', handlePageTourComplete);
+        };
+    }, []);
+
+    // Listen for tour start event from WelcomeModal
+    useEffect(() => {
+        const handleStartTour = () => {
+            console.log('Start tour event received');
+            if (tourRef.current) {
+                // Ensure sidebar is expanded before starting tour
+                if (isCollapsed) {
+                    setIsCollapsed(false);
+                    setTimeout(() => {
+                        tourRef.current?.startTour();
+                    }, 300);
+                } else {
+                    tourRef.current.startTour();
+                }
+            }
+        };
+
+        window.addEventListener('start-sidebar-tour', handleStartTour);
+        return () => {
+            window.removeEventListener('start-sidebar-tour', handleStartTour);
+        };
+    }, [isCollapsed]);
 
     const expandSidebar = () => setIsCollapsed(false);
     const expandSection = (sectionKey: string) => setOpen(o => ({ ...o, [sectionKey]: true }));
@@ -673,26 +768,41 @@ export default function Sidebar({ mobileOpen, onClose, userSessionData }: Sideba
             setActiveSubSubItem(storedActiveSubSubItem);
         }
     }, []);
-    const [initialized, setInitialized] = useState(false);
-
+    // Sync active menu with current pathname
     useEffect(() => {
-        if (initialized === true) return;
         if (!sections.length) return;
 
-        const currentPath = window.location.pathname;
+        const currentPath = pathname;
         const normalizePath = (path: string = "") =>
             "/" + path.replace(/^\/+/, "").replace(/\/+$/, "");
 
+        let found = false;
+
+        // Check if level 1 has a direct access_link match
+        for (const section of sections) {
+            if (normalizePath(section.access_link || "") === currentPath) {
+                setActiveSection(section.key);
+                setActiveSubItem(undefined);
+                setActiveSubSubItem(undefined);
+                setOpen(o => ({ ...o, [section.key]: true }));
+                found = true;
+                break;
+            }
+        }
+
+        if (found) return;
+
+        // Check level 2 and level 3
         for (const section of sections) {
             for (const l2 of section.subItems) {
-
                 if (normalizePath(l2.access_link) === currentPath) {
                     setActiveSection(section.key);
                     setActiveSubItem(l2.key);
+                    setActiveSubSubItem(undefined);
                     setOpen(o => ({ ...o, [section.key]: true }));
                     setSubOpen(s => ({ ...s, [l2.key]: true }));
-                    setInitialized(true);
-                    return;
+                    found = true;
+                    break;
                 }
 
                 for (const l3 of (l2.subItems || [])) {
@@ -702,13 +812,15 @@ export default function Sidebar({ mobileOpen, onClose, userSessionData }: Sideba
                         setActiveSubSubItem(l3.key);
                         setOpen(o => ({ ...o, [section.key]: true }));
                         setSubOpen(s => ({ ...s, [l2.key]: true }));
-                        setInitialized(true);
-                        return;
+                        found = true;
+                        break;
                     }
                 }
+                if (found) break;
             }
+            if (found) break;
         }
-    }, [sections]);
+    }, [sections, pathname]);
 
     // Persist sidebar state
     useEffect(() => {
@@ -751,14 +863,6 @@ export default function Sidebar({ mobileOpen, onClose, userSessionData }: Sideba
             fetchMenuData();
         }
     }, [sessionData.url, sessionData.subInstituteId, fetchMenuData]);
-
-    // Initialize tour when sections are loaded
-    useEffect(() => {
-        if (sections.length > 0 && !loading) {
-            tourGuideRef.current = new SidebarTourGuide(sections, expandSidebar, expandSection, expandSub, setActiveSection);
-            tourGuideRef.current.startTour();
-        }
-    }, [sections, loading]);
 
     const handleSectionToggle = (key: string) => {
         setOpen((o) => ({ ...o, [key]: !o[key] }));

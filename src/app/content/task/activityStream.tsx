@@ -7,6 +7,7 @@ import { EmployeeCard } from '@/components/taskComponent/EmployeeCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Search,
@@ -16,8 +17,11 @@ import {
   CheckCircle,
   TrendingUp,
   Users,
-  Activity
+  Activity,
+  HelpCircle
 } from 'lucide-react';
+import Shepherd from 'shepherd.js';
+import 'shepherd.js/dist/css/shepherd.css';
 import {
   isToday,
   isThisWeek,
@@ -61,6 +65,282 @@ const ActivityStream = () => {
     syear: '',
   });
   const [loading, setLoading] = useState(true);
+  const [showTour, setShowTour] = useState(false);
+
+  // Check if first visit and show tour
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hasSeenTour = localStorage.getItem('activityStreamTourSeen');
+      if (!hasSeenTour) {
+        setShowTour(true);
+      }
+    }
+  }, []);
+
+  // Initialize Shepherd tour
+  useEffect(() => {
+    if (showTour) {
+      const tour = new Shepherd.Tour({
+        useModalOverlay: true,
+        defaultStepOptions: {
+          classes: 'shepherd-theme-custom',
+          scrollTo: { behavior: 'smooth', block: 'center' },
+          cancelIcon: {
+            enabled: true
+          }
+        }
+      });
+
+      tour.addStep({
+        id: 'welcome',
+        text: 'Welcome to the Task Activity Stream! This page helps you track and manage tasks across your team.',
+        attachTo: {
+          element: 'h1',
+          on: 'bottom'
+        },
+        buttons: [
+          {
+            text: 'Next',
+            action: tour.next
+          }
+        ]
+      });
+
+      tour.addStep({
+        id: 'stats-total',
+        text: 'Total Tasks - Shows the total number of tasks assigned to you.',
+        attachTo: {
+          element: '#tour-stats-total',
+          on: 'bottom'
+        },
+        buttons: [
+          {
+            text: 'Back',
+            action: tour.back
+          },
+          {
+            text: 'Next',
+            action: tour.next
+          }
+        ]
+      });
+
+      tour.addStep({
+        id: 'stats-pending',
+        text: 'Pending - Shows tasks that are waiting to be started.',
+        attachTo: {
+          element: '#tour-stats-pending',
+          on: 'bottom'
+        },
+        buttons: [
+          {
+            text: 'Back',
+            action: tour.back
+          },
+          {
+            text: 'Next',
+            action: tour.next
+          }
+        ]
+      });
+
+      tour.addStep({
+        id: 'stats-completed',
+        text: 'Completed - Shows tasks that have been finished.',
+        attachTo: {
+          element: '#tour-stats-completed',
+          on: 'bottom'
+        },
+        buttons: [
+          {
+            text: 'Back',
+            action: tour.back
+          },
+          {
+            text: 'Next',
+            action: tour.next
+          }
+        ]
+      });
+
+      tour.addStep({
+        id: 'stats-inprogress',
+        text: 'In Progress - Shows tasks that are currently being worked on.',
+        attachTo: {
+          element: '#tour-stats-inprogress',
+          on: 'bottom'
+        },
+        buttons: [
+          {
+            text: 'Back',
+            action: tour.back
+          },
+          {
+            text: 'Next',
+            action: tour.next
+          }
+        ]
+      });
+
+      tour.addStep({
+        id: 'filter-search',
+        text: 'Search - Type here to find tasks by title or description.',
+        attachTo: {
+          element: '#tour-filter-search',
+          on: 'right'
+        },
+        buttons: [
+          {
+            text: 'Back',
+            action: tour.back
+          },
+          {
+            text: 'Next',
+            action: tour.next
+          }
+        ]
+      });
+
+      tour.addStep({
+        id: 'filter-status',
+        text: 'Status Filter - Select a status to filter tasks (All, PENDING, IN-PROGRESS, COMPLETED).',
+        attachTo: {
+          element: '#tour-filter-status',
+          on: 'right'
+        },
+        buttons: [
+          {
+            text: 'Back',
+            action: tour.back
+          },
+          {
+            text: 'Next',
+            action: tour.next
+          }
+        ]
+      });
+
+      tour.addStep({
+        id: 'tab-today',
+        text: 'Today Tab - Click here to view tasks that are due today.',
+        attachTo: {
+          element: '#tour-tab-today',
+          on: 'bottom'
+        },
+        buttons: [
+          {
+            text: 'Back',
+            action: tour.back
+          },
+          {
+            text: 'Next',
+            action: tour.next
+          }
+        ]
+      });
+
+      tour.addStep({
+        id: 'tab-upcoming',
+        text: 'Upcoming Tab - Click here to view tasks scheduled for this week.',
+        attachTo: {
+          element: '#tour-tab-upcoming',
+          on: 'bottom'
+        },
+        buttons: [
+          {
+            text: 'Back',
+            action: tour.back
+          },
+          {
+            text: 'Next',
+            action: tour.next
+          }
+        ]
+      });
+
+      tour.addStep({
+        id: 'tab-recent',
+        text: 'Recent Tab - Click here to view tasks that have been updated recently.',
+        attachTo: {
+          element: '#tour-tab-recent',
+          on: 'bottom'
+        },
+        buttons: [
+          {
+            text: 'Back',
+            action: tour.back
+          },
+          {
+            text: 'Next',
+            action: tour.next
+          }
+        ]
+      });
+
+      tour.addStep({
+        id: 'task-card',
+        text: 'Task Card - Each card shows task details. Click "Reply & Update" to respond and change status.',
+        attachTo: {
+          element: '.space-y-4 .rounded-xl',
+          on: 'top'
+        },
+        buttons: [
+          {
+            text: 'Back',
+            action: tour.back
+          },
+          {
+            text: 'Next',
+            action: tour.next
+          }
+        ]
+      });
+
+      tour.addStep({
+        id: 'task-reply',
+        text: 'Reply & Update - Add a message and select new status, then click "Send Reply" to save.',
+        attachTo: {
+          element: '.bg-gray-50.border-t',
+          on: 'top'
+        },
+        buttons: [
+          {
+            text: 'Back',
+            action: tour.back
+          },
+          {
+            text: 'Finish',
+            action: () => {
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('activityStreamTourSeen', 'true');
+              }
+              setShowTour(false);
+              tour.complete();
+            }
+          }
+        ]
+      });
+
+      // Start tour after a small delay to ensure UI is ready
+      setTimeout(() => {
+        tour.start();
+      }, 500);
+
+      return () => {
+        if (tour) {
+          tour.complete();
+        }
+      };
+    }
+  }, [showTour]);
+
+  // Start tour manually
+  const startTour = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('activityStreamTourSeen');
+    }
+    setShowTour(true);
+  };
 
   useEffect(() => {
     const userData = localStorage.getItem("userData");
@@ -221,14 +501,20 @@ const ActivityStream = () => {
     <div className="min-h-screen bg-white rounded-xl">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-4">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Task Activity Stream</h1>
-          <p className="text-gray-600 text-sm">Track task progress across your team</p>
+        <div className="mb-4 flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Task Activity Stream</h1>
+            <p className="text-gray-600 text-sm">Track task progress across your team</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={startTour} className="flex items-center gap-2">
+            <HelpCircle className="w-4 h-4" />
+            Start Tour
+          </Button>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="shafow-lg shadow-blue-200">
+          <Card className="shafow-lg shadow-blue-200" id="tour-stats-total">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -239,7 +525,7 @@ const ActivityStream = () => {
               </div>
             </CardContent>
           </Card>
-          <Card className="shafow-lg shadow-blue-200">
+          <Card className="shafow-lg shadow-blue-200" id="tour-stats-pending">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -250,7 +536,7 @@ const ActivityStream = () => {
               </div>
             </CardContent>
           </Card>
-          <Card className="shafow-lg shadow-blue-200">
+          <Card className="shafow-lg shadow-blue-200" id="tour-stats-completed">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -261,7 +547,7 @@ const ActivityStream = () => {
               </div>
             </CardContent>
           </Card>
-          <Card className="shafow-lg shadow-blue-200">
+          <Card className="shafow-lg shadow-blue-200" id="tour-stats-inprogress">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -278,7 +564,7 @@ const ActivityStream = () => {
           {/* Main Content */}
           <div className="lg:col-span-2">
             {/* Filters */}
-            <Card className="mb-6 shafow-lg shadow-blue-200">
+            <Card className="mb-6 shafow-lg shadow-blue-200" id="tour-filters">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-xl">
                   <Filter className="w-5 h-5" />
@@ -287,7 +573,7 @@ const ActivityStream = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 lg:grid-cols-2 md:grid-cols-3 gap-4">
-                  <div>
+                  <div id="tour-filter-search">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -299,7 +585,7 @@ const ActivityStream = () => {
                       />
                     </div>
                   </div>
-                  <div>
+                  <div id="tour-filter-status">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
                     <Select value={filterStatus} onValueChange={setFilterStatus}>
                       <SelectTrigger>
@@ -318,17 +604,17 @@ const ActivityStream = () => {
             </Card>
 
             {/* Task Tabs */}
-            <Tabs defaultValue="today" className="w-full ">
-              <TabsList className="grid w-full grid-cols-3 bg-[#EFF4FF]">
-                <TabsTrigger value="today" className="flex items-center gap-2">
+            <Tabs defaultValue="today" className="w-full " id="tour-tabs">
+              <TabsList className="grid w-full grid-cols-3 bg-[#EFF4FF]" id="tour-tabs-list">
+                <TabsTrigger value="today" className="flex items-center gap-2" id="tour-tab-today">
                   <Calendar className="w-4 h-4" />
                   Today ({filteredTodayTasks.length})
                 </TabsTrigger>
-                <TabsTrigger value="upcoming" className="flex items-center gap-2">
+                <TabsTrigger value="upcoming" className="flex items-center gap-2" id="tour-tab-upcoming">
                   <Clock className="w-4 h-4" />
                   Upcoming ({filteredUpcomingTasks.length})
                 </TabsTrigger>
-                <TabsTrigger value="recent" className="flex items-center gap-2">
+                <TabsTrigger value="recent" className="flex items-center gap-2" id="tour-tab-recent">
                   <CheckCircle className="w-4 h-4" />
                   Recent ({filteredRecentTasks.length})
                 </TabsTrigger>

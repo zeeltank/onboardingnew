@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TaskManagement from '../../content/task/taskManagement';
 import AssignmentPreview from './components/AssignmentPreview';
 import ProgressDashboard from './components/ProgressDashboard';
 import CalendarIntegration from './components/CalendarIntegration';
+import TaskAssignmentTour from './components/TaskAssignmentTour';
 import Icon from '../../../components/AppIcon';
 import Button from '@/components/taskComponent/ui/Button';
 
@@ -37,11 +38,16 @@ const TaskAssignment = () => {
     }
   };
 
+  // Handle view switching from tour
+  const handleSwitchView = (view) => {
+    setActiveView(view);
+  };
+
   return (
     <div className="min-h-screen bg-background rounded-xl">
       <main className="p-4">
           {/* Page Header */}
-          <div className="mb-8">
+        <div className="mb-8" id="task-assignment-header">
             <div className="flex items-center justify-between mb-4">
               <div>
               <h1 className="text-2xl font-bold text-foreground">Task Progress Assignment</h1>
@@ -71,10 +77,11 @@ const TaskAssignment = () => {
             </div>
 
             {/* View Tabs */}
-            <div className="flex space-x-1 bg-[#EFF4FF] p-1 rounded-lg w-fit">
+          <div className="flex space-x-1 bg-[#EFF4FF] p-1 rounded-lg w-fit" id="task-assignment-tabs">
               {views.map((view) => (
                 <button
                   key={view.id}
+                  id={view.id === 'assignment' ? 'tab-assignment' : `tab-${view.id}`}
                   onClick={() => setActiveView(view.id)}
                   className={`flex items-center space-x-2 px-4 py-2 text-sm font-medium rounded-md transition-smooth ${
                     activeView === view.id
@@ -98,7 +105,9 @@ const TaskAssignment = () => {
           )}
 
           {activeView === 'progress' && (
+          <div id="task-dashboard-section">
             <ProgressDashboard />
+          </div>
           )}
 
           {/* {activeView === 'calendar' && (
@@ -115,7 +124,9 @@ const TaskAssignment = () => {
         />
       )}
 
-     
+      {/* Task Assignment Tour */}
+      <TaskAssignmentTour onComplete={() => console.log('Tour completed')} onSwitchView={handleSwitchView} />
+
     </div>
   );
 };

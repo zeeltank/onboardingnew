@@ -11,6 +11,7 @@ import EmployeeProfileModal from './components/EmployeeProfileModal';
 import PaginationControls from './components/PaginationControls';
 import { Button } from '../../../components/ui/button';
 import dynamic from 'next/dynamic';
+import EmployeeDirectoryTour from './components/EmployeeDirectoryTour';
   const AddUserModal = dynamic(() => import('./AddUserModal'), {
     ssr: false,
     loading: () => <p>Loading...</p>
@@ -43,9 +44,29 @@ const EmployeeDirectory = () => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [userProfiles, setUserProfiles] = useState([]);
+  const [showTour, setShowTour] = useState(false);
 
 
-  // Load session data once from localStorage
+  // Check if first visit and show tour
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hasSeenTour = localStorage.getItem('employeeDirectoryTourSeen');
+      if (!hasSeenTour && sessionData.user_id) {
+        // Delay tour start slightly to ensure UI is ready
+        setTimeout(() => {
+          setShowTour(true);
+        }, 1000);
+      }
+    }
+  }, [sessionData.user_id]);
+
+  // Handle tour completion
+  const handleTourComplete = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('employeeDirectoryTourSeen', 'true');
+    }
+    setShowTour(false);
+  }, []);
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const userData = localStorage.getItem('userData');
@@ -335,7 +356,7 @@ const EmployeeDirectory = () => {
     <div className="min-h-screen bg-background rounded-xl">
   <main className="pb-16">
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-8">
+          <div id="employee-directory-header" className="mb-8">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Employee Directory</h1>
@@ -345,6 +366,7 @@ const EmployeeDirectory = () => {
           </div>
           {sessionData.user_profile_name !== 'Employee' && (
             <Button
+                  id="add-employee-btn"
               variant="outline"
               size="sm"
               className="justify-start"
@@ -407,8 +429,9 @@ const EmployeeDirectory = () => {
                   <span className="ml-2 text-primary">({selectedEmployees.length} selected)</span>
                 )}
               </div>
-              <div className="flex items-center space-x-2">
+                  <div id="view-mode-toggle-container" className="flex items-center space-x-2">
                 <Button
+                      id="view-mode-table"
                   variant="outline"
                   size="sm"
                   onClick={() => setViewMode('table')}
@@ -420,6 +443,7 @@ const EmployeeDirectory = () => {
                   </svg>
                 </Button>
                 <Button
+                      id="view-mode-cards"
                   variant="outline"
                   size="sm"
                   onClick={() => setViewMode('cards')}
@@ -459,19 +483,21 @@ const EmployeeDirectory = () => {
               <span className="ml-2 text-muted-foreground">Loading employees...</span>
             </div>
           ) : viewMode === 'table' ? (
-            <EmployeeTable
-              employees={paginatedEmployees}
-              selectedEmployees={selectedEmployees}
-              onSelectEmployee={handleSelectEmployee}
-              onSelectAll={handleSelectAll}
-              onSort={handleSort}
-              sortConfig={sortConfig}
-              onViewProfile={handleViewProfile}
-              onAssignTask={handleAssignTask}
-              onEdit={handleEdit}
-            />
+              <div id="employee-table-section">
+                <EmployeeTable
+                  employees={paginatedEmployees}
+                  selectedEmployees={selectedEmployees}
+                  onSelectEmployee={handleSelectEmployee}
+                  onSelectAll={handleSelectAll}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
+                  onViewProfile={handleViewProfile}
+                  onAssignTask={handleAssignTask}
+                  onEdit={handleEdit}
+                />
+              </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-6">
+                <div id="employee-card-container" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-6">
               {paginatedEmployees.map((employee) => (
                 <EmployeeCard
                   key={employee.id}
@@ -486,14 +512,16 @@ const EmployeeDirectory = () => {
 
           {/* Pagination moved INSIDE the grid */}
           {totalPages > 1 && (
-            <PaginationControls
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={sortedEmployees.length}
-              itemsPerPage={itemsPerPage}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
-            />
+            <div id="pagination-controls">
+              <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={sortedEmployees.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={handlePageChange}
+                onItemsPerPageChange={handleItemsPerPageChange}
+              />
+            </div>
           )}
     </div>
   </main>
@@ -505,6 +533,9 @@ const EmployeeDirectory = () => {
     onAssignTask={handleAssignTask}
     onEdit={handleEdit}
   />
+
+      {/* Tour Component */}
+      {showTour && <EmployeeDirectoryTour onComplete={handleTourComplete} />}
 
   {/* <QuickActionMenu /> */}
 </div>
