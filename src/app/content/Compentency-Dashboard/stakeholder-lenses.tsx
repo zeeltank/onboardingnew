@@ -1595,8 +1595,8 @@ export const CombinedDashboard = () => {
   const [currentView, setCurrentView] = useState<"competency-density" | "skills-heatmap" | "skills-gap">("competency-density");
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="p-6 border-b border-border">
+    <div className="min-h-screen bg-background" id="tour-stakeholder-views">
+      <div className="p-6 border-b border-border" id="tour-stakeholder-filters">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-foreground">
             {currentView === "skills-gap" ? "Skills Gap Analysis" : 

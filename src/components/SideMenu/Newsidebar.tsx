@@ -620,8 +620,9 @@ const DashboardSection = ({
                     <div className="w-full h-[60px] bg-white relative">
                         <button
                             type="button"
+                            id="tour-dashboard"
                             onClick={handleDashboardClick}
-                                className="w-full h-full flex items-center justify-between px-[25px] hover:bg-gray-50 transition-colors rounded-md"
+                            className="w-full h-full flex items-center justify-between px-[25px] hover:bg-gray-50 transition-colors rounded-md"
                         >
                             <div className="flex items-center gap-[20px]">
                                 <Home className="w-[16px] h-[24px]" />
