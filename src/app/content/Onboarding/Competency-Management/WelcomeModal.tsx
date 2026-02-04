@@ -19,6 +19,19 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
   onClose,
   onStartTour,
 }) => {
+  const handleStartTour = () => {
+    // Close the modal
+    onClose();
+
+    // Dispatch custom event to start sidebar tour
+    window.dispatchEvent(new CustomEvent('start-sidebar-tour'));
+
+    // Also call the original onStartTour callback if provided
+    if (onStartTour) {
+      onStartTour();
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[460px] rounded-2xl p-0 overflow-hidden transition-all duration-500">
@@ -56,7 +69,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
           {/* Action */}
           <div className="pt-4 space-y-3">
             <Button
-              onClick={onStartTour}
+              onClick={handleStartTour}
               className="w-full bg-blue-400 hover:bg-blue-500 text-white gap-2"
             >
               <Play className="h-4 w-4" />

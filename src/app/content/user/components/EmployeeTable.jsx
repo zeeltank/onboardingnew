@@ -345,6 +345,7 @@ const EmployeeTable = ({
       cell: (row) => (
         <div className="relative">
           <Button
+            id="table-actions-menu"
             variant="ghost"
             size="icon"
             onClick={(e) => handleMenuToggle(row.id, e)}

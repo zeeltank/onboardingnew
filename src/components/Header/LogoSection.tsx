@@ -77,6 +77,12 @@ export const LogoSection: React.FC = () => {
     );
   };
 
+  const handleStartTour = () => {
+    setIsWelcomeModalOpen(false);
+    // Dispatch event to start the onboarding tour in NewSidebar
+    window.dispatchEvent(new CustomEvent("startOnboardingTour"));
+  };
+
   const menuItems = userData?.user_profile_name === "Admin" ? [{ label: "Rights Management", path: "groupWiseRights/page.tsx" }] : [];
 
   return (
@@ -224,10 +230,7 @@ export const LogoSection: React.FC = () => {
       <WelcomeModal
         isOpen={isWelcomeModalOpen}
         onClose={() => setIsWelcomeModalOpen(false)}
-        onStartTour={() => {
-          setIsWelcomeModalOpen(false);
-          // Start tour logic here
-        }}
+        onStartTour={handleStartTour}
       />
     </div>
   );

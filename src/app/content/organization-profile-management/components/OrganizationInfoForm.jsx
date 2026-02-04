@@ -368,6 +368,7 @@ const OrganizationInfoForm = ({ onSave, loading = false }) => {
               <label className="block text-sm font-medium">Legal Name{" "}
                 <span className="mdi mdi-asterisk text-[10px] text-danger"></span></label>
               <Input
+                id="org-legal-name"
                 value={displayValue(formData.legal_name, '')}
                 placeholder="Enter legal organization name"
                 onChange={(e) => handleInputChange('legal_name', e.target.value)}
@@ -378,6 +379,7 @@ const OrganizationInfoForm = ({ onSave, loading = false }) => {
               <label className="block text-sm font-medium">CIN (Corporate Identification Number){" "}
                 <span className="mdi mdi-asterisk text-[10px] text-danger"></span></label>
               <Input
+                id="org-cin"
                 value={displayValue(formData.cin, '')}
                 placeholder="Enter 21-digit CIN"
                 onChange={(e) => handleInputChange('cin', e.target.value)}
@@ -399,6 +401,7 @@ const OrganizationInfoForm = ({ onSave, loading = false }) => {
               <label className="block text-sm font-medium">PAN{" "}
                 <span className="mdi mdi-asterisk text-[10px] text-danger"></span></label>
               <Input
+                id="org-pan"
                 value={displayValue(formData.pan, '')}
                 placeholder="Enter PAN (e.g., AAAAA9999A)"
                 onChange={(e) => handleInputChange('pan', e.target.value)}
@@ -410,7 +413,7 @@ const OrganizationInfoForm = ({ onSave, loading = false }) => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
+            <div className="space-y-2" id="org-industry">
               <label className="block text-sm font-medium">Industry</label>
               {/* <select
                 value={sessionData.org_type}
@@ -449,6 +452,7 @@ const OrganizationInfoForm = ({ onSave, loading = false }) => {
               <label className="block text-sm font-medium">Employee Count{" "}
                 <span className="mdi mdi-asterisk text-[10px] text-danger"></span></label>
               <select
+                id="org-employee-count"
                 value={displayValue(formData.employee_count, '')}
                 onChange={(e) => handleInputChange('employee_count', e.target.value)}
                 className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-primary"
@@ -468,6 +472,7 @@ const OrganizationInfoForm = ({ onSave, loading = false }) => {
             <label className="block text-sm font-medium">Work Week{" "}
                 <span className="mdi mdi-asterisk text-[10px] text-danger"></span></label>
             <select
+              id="org-work-week"
               value={displayValue(formData.work_week, '')}
               onChange={(e) => handleInputChange('work_week', e.target.value)}
               className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-primary"
@@ -486,6 +491,7 @@ const OrganizationInfoForm = ({ onSave, loading = false }) => {
             <label className="block text-sm font-medium">Registered Address{" "}
                 <span className="mdi mdi-asterisk text-[10px] text-danger"></span></label>
             <Input
+              id="org-address"
               value={displayValue(formData.registered_address, '')}
               placeholder="Enter complete registered address"
               onChange={(e) => handleInputChange('registered_address', e.target.value)}
@@ -493,7 +499,7 @@ const OrganizationInfoForm = ({ onSave, loading = false }) => {
             />
           </div>
 
-          <div>
+          <div id="org-logo-upload">
             <label className="block text-sm font-medium mb-2">Organization Logo</label>
             <div className="flex items-center space-x-4">
               <div className="w-20 h-20 bg-muted border border-border rounded-lg flex items-center justify-center overflow-hidden">
@@ -521,7 +527,7 @@ const OrganizationInfoForm = ({ onSave, loading = false }) => {
 
       {/* SISTER COMPANY FORMS */}
       {sisterCompanies.map((sister, index) => (
-        <div key={index} className="border border-border rounded-lg p-5 mb-6 relative">
+        <div key={index} className="border border-border rounded-lg p-5 mb-6 relative" id="org-sister-companies">
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-base font-semibold text-foreground">
               {displayValue(sister.legal_name, `Sister Concern Company #${index + 1}`)}
@@ -673,7 +679,7 @@ const OrganizationInfoForm = ({ onSave, loading = false }) => {
       ))}
 
       <div className="mt-6 col-span-1 md:col-span-3 flex justify-center">
-        <Button id="submit" type="submit" disabled={loading} className="px-8 py-2 rounded-full text-white font-semibold bg-gradient-to-r from-blue-500 to-blue-700">
+        <Button id="org-info-submit-btn" type="submit" disabled={loading} className="px-8 py-2 rounded-full text-white font-semibold bg-gradient-to-r from-blue-500 to-blue-700">
           {loading ? 'Saving...' : 'Submit'}
         </Button>
       </div>
