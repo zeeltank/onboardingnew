@@ -8,8 +8,9 @@ import AlignmentWidget from "./Alignment-Standardization";
 import CombinedDashboard from "./Competency-HealthRadar";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { TrendingUp, Users, Calendar, Target, ChevronDown, TrendingDown, Minus, Filter, Briefcase } from "lucide-react";
+import { initializeTour, isTourCompleted, resetTour } from "./CompetencyDashboardTour";
 
-// UI Components (simplified versions for single file)
+// UI Components
 const Badge = ({ className, variant, children, ...props }: any) => (
   <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors ${className}`} {...props}>
     {children}
@@ -34,36 +35,27 @@ const Select = ({ value, onValueChange, children }: any) => {
   
   return (
     <div className="relative">
-      <SelectTrigger onClick={() => setIsOpen(!isOpen)}>
+      <button
+        className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+        onClick={() => setIsOpen(!isOpen)}
+      >
         {selectedValue === "all" ? "All Categories" : selectedValue}
-      </SelectTrigger>
+        <ChevronDown className="h-4 w-4 opacity-50" />
+      </button>
       {isOpen && (
-        <SelectContent>
-          {children.map((child: any) => 
-            React.cloneElement(child, {
-              onClick: () => handleSelect(child.props.value)
-            })
-          )}
-        </SelectContent>
+        <div className="relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-80">
+          <div className="p-1">
+            {children.map((child: any) =>
+              React.cloneElement(child, {
+                onClick: () => handleSelect(child.props.value)
+              })
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
 };
-
-const SelectTrigger = ({ children, ...props }: any) => (
-  <button className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background" {...props}>
-    {children}
-    <ChevronDown className="h-4 w-4 opacity-50" />
-  </button>
-);
-
-const SelectContent = ({ children }: any) => (
-  <div className="relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-80">
-    <div className="p-1">
-      {children}
-    </div>
-  </div>
-);
 
 const SelectItem = ({ children, ...props }: any) => (
   <div className="relative flex cursor-default select-none items-center rounded-sm py-1.5 px-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground" {...props}>
@@ -77,16 +69,6 @@ const NAVIGATION_TABS = [
   { id: "health-completeness", name: "Competency Health & Completeness" },
   { id: "alignment-standardization", name: "Alignment & Standardization" },
   { id: "stakeholder-lenses", name: "Stakeholder-Specific Lenses" },
-];
-
-// Radar chart data from the image
-const RADAR_METRICS = [
-  { name: "Task Mapping", current: 85, target: 95 },
-  { name: "Future Readiness", current: 74, target: 90, delta: -16 },
-  { name: "External Alignment", current: 89, target: 90, delta: 91 },
-  { name: "Skill Coverage", current: 74, target: 85, delta: -18 },
-  { name: "Behavior Mapping", current: 45, target: 70 },
-  { name: "Risk Assessment", current: 68, target: 80 },
 ];
 
 const ROLES = [
@@ -181,69 +163,6 @@ const SCORECARD = [
   { title: "Competency Documentation", current: 91, target: 95 },
 ];
 
-// Skills pipeline data for funnel view
-const SKILLS_PIPELINE = [
-  {
-    stage: "Identified Orphans",
-    count: "10,000",
-    percentageText: "100% of total",
-    filtered: "-3,000 (30%) entities filtered",
-    description: "Unmapped skills/entities detected",
-    start: "#ffecee",
-    end: "#fcd5d5",
-    textColor: "#111827"
-  },
-  {
-    stage: "In Review",
-    count: "7,000",
-    percentageText: "70% of total",
-    filtered: "-4,000 (57%) entities filtered",
-    description: "Entities currently under review by SME",
-    start: "#fff8e6",
-    end: "#fff1c7",
-    textColor: "#111827"
-  },
-  {
-    stage: "Mapped Candidates",
-    count: "3,000",
-    percentageText: "30% of total",
-    filtered: "-1,000 (33%) entities filtered",
-    description: "Skills/entities with proposed links—pending approval",
-    start: "#eef2ff",
-    end: "#dbeafe",
-    textColor: "#0f172a"
-  },
-  {
-    stage: "Approved & Integrated",
-    count: "2,000",
-    percentageText: "20% of total",
-    filtered: "",
-    description: "Skills/entities fully vetted and integrated",
-    start: "#ecfdf5",
-    end: "#bbf7d0",
-    textColor: "#0f172a"
-  },
-];
-
-// Sample data for the trend chart
-const trendData = [
-  { year: "2021", "Data Scientist": 145, "Software Engineer": 132, "Product Manager": 128, "UX Designer": 118, "DevOps Engineer": 115 },
-  { year: "2022", "Data Scientist": 167, "Software Engineer": 139, "Product Manager": 135, "UX Designer": 124, "DevOps Engineer": 122 },
-  { year: "2023", "Data Scientist": 189, "Software Engineer": 145, "Product Manager": 142, "UX Designer": 129, "DevOps Engineer": 128 },
-  { year: "2024", "Data Scientist": 210, "Software Engineer": 152, "Product Manager": 149, "UX Designer": 135, "DevOps Engineer": 134 },
-  { year: "2025", "Data Scientist": 235, "Software Engineer": 159, "Product Manager": 157, "UX Designer": 142, "DevOps Engineer": 141 },
-  { year: "2026", "Data Scientist": 262, "Software Engineer": 167, "Product Manager": 166, "UX Designer": 148, "DevOps Engineer": 148 },
-];
-
-const roleColors = {
-  "Data Scientist": "hsl(var(--chart-1))",
-  "Software Engineer": "hsl(var(--chart-2))",
-  "Product Manager": "hsl(var(--chart-3))",
-  "UX Designer": "hsl(var(--chart-4))",
-  "DevOps Engineer": "hsl(var(--chart-5))",
-};
-
-// Role data for sidebar
 const roleData = [
   { rank: 1, name: "Data Scientist", growth: 45.2, trend: "up", category: "Technology", density: 262 },
   { rank: 2, name: "Product Manager", growth: 18.7, trend: "up", category: "Business", density: 166 },
@@ -257,431 +176,26 @@ const roleData = [
   { rank: 10, name: "Operations Manager", growth: -2.8, trend: "down", category: "Operations", density: 110 },
 ];
 
-// Role details for drill down panel
-const roleDetails = {
-  "Data Scientist": {
-    rank: 1,
-    densityScore: 262,
-    projectedGrowth: "+18% by 2026",
-    description: "Expected to grow significantly due to AI/ML skill requirements and data-driven decision making",
-    topCompetencies: [
-      { name: "Machine Learning", weight: 95, trend: "up" },
-      { name: "Statistical Analysis", weight: 88, trend: "up" },
-      { name: "Python Programming", weight: 82, trend: "stable" }
-    ],
-    departments: ["Technology", "Analytics", "R&D"],
-    sparklineData: [145, 167, 189, 210, 235, 262]
-  },
-  "Product Manager": {
-    rank: 2,
-    densityScore: 166,
-    projectedGrowth: "+12% by 2026",
-    description: "Growing complexity in product strategy and cross-functional leadership requirements",
-    topCompetencies: [
-      { name: "Strategic Planning", weight: 92, trend: "up" },
-      { name: "User Research", weight: 85, trend: "up" },
-      { name: "Agile Methodology", weight: 78, trend: "stable" }
-    ],
-    departments: ["Product", "Technology", "Strategy"],
-    sparklineData: [128, 135, 142, 149, 157, 166]
-  },
-  "Software Engineer": {
-    rank: 3,
-    densityScore: 167,
-    projectedGrowth: "+10% by 2026",
-    description: "Steady growth driven by cloud technologies and DevOps integration",
-    topCompetencies: [
-      { name: "Cloud Architecture", weight: 89, trend: "up" },
-      { name: "Full-Stack Development", weight: 85, trend: "stable" },
-      { name: "System Design", weight: 80, trend: "up" }
-    ],
-    departments: ["Technology", "Engineering", "Infrastructure"],
-    sparklineData: [132, 139, 145, 152, 159, 167]
-  },
-  "UX Designer": {
-    rank: 4,
-    densityScore: 148,
-    projectedGrowth: "+8% by 2026",
-    description: "Increasing focus on user experience across digital products",
-    topCompetencies: [
-      { name: "User Research", weight: 88, trend: "up" },
-      { name: "Wireframing", weight: 82, trend: "stable" },
-      { name: "Prototyping", weight: 78, trend: "up" }
-    ],
-    departments: ["Design", "Product", "Technology"],
-    sparklineData: [118, 124, 129, 135, 142, 148]
-  },
-  "DevOps Engineer": {
-    rank: 5,
-    densityScore: 148,
-    projectedGrowth: "+7% by 2026",
-    description: "Continued importance in cloud infrastructure and automation",
-    topCompetencies: [
-      { name: "CI/CD", weight: 90, trend: "up" },
-      { name: "Cloud Platforms", weight: 85, trend: "up" },
-      { name: "Containerization", weight: 80, trend: "stable" }
-    ],
-    departments: ["Technology", "Infrastructure", "Engineering"],
-    sparklineData: [115, 122, 128, 134, 141, 148]
-  }
-};
-
-// KPI Card Component
-const KPICard = ({ label, value, trend, trendValue, icon }: any) => {
-  const trendColor = trend === "up" ? "text-trend-up" : trend === "down" ? "text-trend-down" : "text-trend-stable";
-  
-  return (
-    <Card className="p-6 bg-gradient-subtle border-none shadow-sm hover:shadow-md transition-shadow animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">{label}</p>
-          <p className="text-2xl font-bold text-foreground mt-1">{value}</p>
-          {trend && trendValue && (
-            <p className={`text-sm mt-1 flex items-center gap-1 ${trendColor}`}>
-              <TrendingUp className="h-3 w-3" />
-              {trendValue}
-            </p>
-          )}
-        </div>
-        <div className="text-primary/70">
-          {icon}
-        </div>
-      </div>
-    </Card>
-  );
-};
-
-// Dashboard Header Component
-const DashboardHeader = () => {
-  return (
-    <div className="space-y-6 animate-slide-up">
-
-      {/* KPI Strip */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KPICard
-          label="Fastest Growing Role"
-          value="Data Scientist"
-          trend="up"
-          trendValue="+45% growth"
-          icon={<Target className="h-8 w-8" />}
-        />
-        <KPICard
-          label="Average Growth (Top 10)"
-          value="+12%"
-          trend="up"
-          trendValue="YoY increase"
-          icon={<TrendingUp className="h-8 w-8" />}
-        />
-        <KPICard
-          label="Total Roles Analyzed"
-          value="127"
-          trend="stable"
-          trendValue="Active roles"
-          icon={<Users className="h-8 w-8" />}
-        />
-        <KPICard
-          label="Projection Horizon"
-          value="2026"
-          trend="stable"
-          trendValue="3 years ahead"
-          icon={<Calendar className="h-8 w-8" />}
-        />
-      </div>
-    </div>
-  );
-};
-
-// Trend Chart Component
-const TrendChart = ({ selectedRole }: any) => {
-  return (
-    <Card className="p-6 bg-gradient-chart border-none shadow-sm animate-fade-in">
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold text-foreground">Competency Density Trends</h3>
-        <p className="text-sm text-muted-foreground">Historical data (solid) and projections (dashed) for top roles</p>
-      </div>
-      
-      <div className="h-96">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={trendData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--chart-grid))" />
-            <XAxis 
-              dataKey="year" 
-              stroke="hsl(var(--muted-foreground))"
-              fontSize={12}
-            />
-            <YAxis 
-              stroke="hsl(var(--muted-foreground))"
-              fontSize={12}
-              label={{ value: 'Competency Density Score', angle: -90, position: 'insideLeft' }}
-            />
-            <Tooltip 
-              contentStyle={{
-                backgroundColor: "hsl(var(--card))",
-                border: "1px solid hsl(var(--border))",
-                borderRadius: "8px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
-              }}
-            />
-            <Legend />
-            
-            {Object.entries(roleColors).map(([role, color]) => (
-              <Line
-                key={role}
-                type="monotone"
-                dataKey={role}
-                stroke={color}
-                strokeWidth={selectedRole === role ? 3 : 2}
-                strokeDasharray={role === selectedRole ? "0" : ""}
-                opacity={selectedRole && selectedRole !== role ? 0.3 : 1}
-                dot={{ fill: color, strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6, fill: color }}
-              />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-      
-      <div className="mt-4 p-3 bg-accent/50 rounded-lg">
-        <p className="text-xs text-muted-foreground">
-          <strong>Note:</strong> Projections for 2025-2026 are based on historical trends and market analysis. 
-          Actual values may vary based on industry changes and organizational needs.
-        </p>
-      </div>
-    </Card>
-  );
-};
-
-// Role Sidebar Component
-const RoleSidebar = ({ selectedRole, onRoleSelect }: any) => {
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  
-  const categories = ["all", "Technology", "Business", "Design", "Marketing", "HR", "Finance", "Operations"];
-  
-  const filteredRoles = roleData.filter(role => 
-    selectedCategory === "all" || role.category === selectedCategory
-  );
-
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case "up":
-        return <TrendingUp className="h-4 w-4 text-trend-up" />;
-      case "down":
-        return <TrendingDown className="h-4 w-4 text-trend-down" />;
-      default:
-        return <Minus className="h-4 w-4 text-trend-stable" />;
-    }
-  };
-
-  const getTrendColor = (trend: string) => {
-    switch (trend) {
-      case "up":
-        return "text-trend-up";
-      case "down":
-        return "text-trend-down";
-      default:
-        return "text-trend-stable";
-    }
-  };
-
-  return (
-    <Card className="p-6 bg-gradient-subtle border-none shadow-sm h-fit animate-fade-in">
-      <div className="space-y-4">
-        {/* Header */}
-        <div className="flex items-center gap-2 mb-4">
-          <Filter className="h-5 w-5 text-primary" />
-          <h3 className="text-lg font-semibold text-foreground">Role Rankings</h3>
-        </div>
-
-        {/* Category Filter */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground">Job Category</label>
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            {categories.map((category) => (
-              <SelectItem key={category} value={category}>
-                {category === "all" ? "All Categories" : category}
-              </SelectItem>
-            ))}
-          </Select>
-        </div>
-
-        {/* Role List */}
-        <div className="space-y-2">
-          <h4 className="text-sm font-medium text-muted-foreground">Top Roles by Growth</h4>
-          <div className="space-y-2 max-h-96 overflow-y-auto">
-            {filteredRoles.map((role) => (
-              <Button
-                key={role.name}
-                variant={selectedRole === role.name ? "default" : "ghost"}
-                className="w-full justify-start p-3 h-auto text-left hover:bg-accent/50"
-                onClick={() => onRoleSelect(role.name)}
-              >
-                <div className="flex items-center justify-between w-full">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs bg-muted px-2 py-1 rounded">#{role.rank}</span>
-                      <span className="font-medium text-sm">{role.name}</span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="outline" className="text-xs">
-                        {role.category}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        Density: {role.density}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {getTrendIcon(role.trend)}
-                    <span className={`text-sm font-medium ${getTrendColor(role.trend)}`}>
-                      {role.growth > 0 ? "+" : ""}{role.growth.toFixed(1)}%
-                    </span>
-                  </div>
-                </div>
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* Legend */}
-        <div className="pt-4 border-t space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">Trend Indicators</p>
-          <div className="flex flex-col gap-1 text-xs">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-3 w-3 text-trend-up" />
-              <span>Rising (&gt;5% growth)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Minus className="h-3 w-3 text-trend-stable" />
-              <span>Stable (-5% to +5%)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <TrendingDown className="h-3 w-3 text-trend-down" />
-              <span>Declining (&lt;-5% growth)</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Card>
-  );
-};
-
-// Drill Down Panel Component
-const DrillDownPanel = ({ selectedRole }: any) => {
-  if (!selectedRole || !roleDetails[selectedRole as keyof typeof roleDetails]) {
-    return (
-      <Card className="p-6 bg-muted/30 border-dashed animate-fade-in">
-        <div className="text-center py-8">
-          <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-muted-foreground mb-2">Select a Role</h3>
-          <p className="text-sm text-muted-foreground">
-            Click on a role from the sidebar to view detailed insights and projections
-          </p>
-        </div>
-      </Card>
-    );
-  }
-
-  const role = roleDetails[selectedRole as keyof typeof roleDetails];
-
-  return (
-    <Card className="p-6 bg-gradient-subtle border-none shadow-sm animate-fade-in">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <Badge className="bg-primary text-primary-foreground">
-                Rank #{role.rank}
-              </Badge>
-              <h3 className="text-xl font-bold text-foreground">{selectedRole}</h3>
-            </div>
-            <p className="text-muted-foreground">{role.description}</p>
-          </div>
-          <div className="text-right">
-            <p className="text-2xl font-bold text-kpi-highlight">{role.densityScore}</p>
-            <p className="text-sm text-muted-foreground">Density Score</p>
-          </div>
-        </div>
-
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-success-light/20 p-4 rounded-lg">
-            <div className="flex items-center gap-2 mb-1">
-              <TrendingUp className="h-4 w-4 text-success" />
-              <span className="text-sm font-medium">Projected Growth</span>
-            </div>
-            <p className="text-lg font-bold text-success">{role.projectedGrowth}</p>
-          </div>
-          
-          <div className="bg-primary-light/20 p-4 rounded-lg">
-            <div className="flex items-center gap-2 mb-1">
-              <Target className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">Current Score</span>
-            </div>
-            <p className="text-lg font-bold text-primary">{role.densityScore}</p>
-          </div>
-          
-          <div className="bg-accent/50 p-4 rounded-lg">
-            <div className="flex items-center gap-2 mb-1">
-              <Briefcase className="h-4 w-4 text-accent-foreground" />
-              <span className="text-sm font-medium">Departments</span>
-            </div>
-            <p className="text-sm font-medium">{role.departments.length} Active</p>
-          </div>
-        </div>
-
-        {/* Top Competencies */}
-        <div>
-          <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Target className="h-5 w-5 text-primary" />
-            Top Driving Competencies
-          </h4>
-          <div className="space-y-3">
-            {role.topCompetencies.map((competency, index) => (
-              <div key={index} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-sm">{competency.name}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">{competency.weight}%</span>
-                    <TrendingUp 
-                      className={`h-3 w-3 ${
-                        competency.trend === "up" ? "text-trend-up" : "text-trend-stable"
-                      }`} 
-                    />
-                  </div>
-                </div>
-                <Progress 
-                  value={competency.weight} 
-                  className="h-2"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Department Tags */}
-        <div>
-          <h4 className="text-sm font-medium mb-2 text-muted-foreground">Active Departments</h4>
-          <div className="flex flex-wrap gap-2">
-            {role.departments.map((dept) => (
-              <Badge key={dept} variant="secondary" className="text-xs">
-                {dept}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      </div>
-    </Card>
-  );
-};
-
 export default function MainDashboard() {
-  const [activeTab, setActiveTab] = useState("balance-equity"); // Changed default to "balance-equity"
+  const [activeTab, setActiveTab] = useState("balance-equity");
 
-  // This ensures the tab is always set to "balance-equity" on component mount
   useEffect(() => {
     setActiveTab("balance-equity");
   }, []);
+
+  // Initialize tour on mount
+  useEffect(() => {
+    if (!isTourCompleted()) {
+      const timer = setTimeout(() => {
+        // Pass setActiveTab as tab switcher callback
+        const tour = initializeTour((tabId: string) => {
+          setActiveTab(tabId);
+        });
+        tour.start();
+      }, 2000); // Increased delay to 2 seconds for elements to render
+      return () => clearTimeout(timer);
+    }
+  }, [setActiveTab]);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -694,14 +208,30 @@ export default function MainDashboard() {
       case "stakeholder-lenses":
         return <CompetencyDashboard />;
       default:
-        return <BalanceEquityView />; // Fallback to balance-equity
+        return <BalanceEquityView />;
     }
   };
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen">
-      {/* Top KPI cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+    <div className="p-6 bg-slate-50 min-h-screen" id="tour-dashboard-container">
+      
+      {/* Tour Controls */}
+      <div className="mb-4 flex justify-end">
+        <button
+          onClick={() => {
+            resetTour();
+            const tour = initializeTour((tabId: string) => {
+              setActiveTab(tabId);
+            });
+            tour.start();
+          }}
+          className="text-xs text-blue-500 hover:text-blue-700 underline"
+        >
+          Restart Tour
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6" id="tour-kpi-cards">
         {KPIS.map((kpi, i) => (
           <Card key={i} className="shadow-sm border rounded-xl bg-white/90">
             <CardContent className="p-4 flex flex-col justify-between">
@@ -714,12 +244,12 @@ export default function MainDashboard() {
         ))}
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="mb-6">
+      <div className="mb-6" id="tour-navigation-tabs">
         <div className="flex space-x-1 bg-slate-100 p-1 rounded-lg">
           {NAVIGATION_TABS.map((tab) => (
             <button
               key={tab.id}
+              id={`tour-tab-${tab.id}`}
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 py-2 px-3 text-xs font-medium rounded-md transition-all duration-200 ${
                 activeTab === tab.id
@@ -733,7 +263,6 @@ export default function MainDashboard() {
         </div>
       </div>
 
-      {/* Tab Content */}
       {renderTabContent()}
     </div>
   );
@@ -741,24 +270,10 @@ export default function MainDashboard() {
 
 // Role–Task–Skill Balance & Equity View
 function BalanceEquityView() {
-  const [similarityThreshold, setSimilarityThreshold] = useState(50);
-  const [selectedDepartment, setSelectedDepartment] = useState("all");
-  const [hoveredRole, setHoveredRole] = useState<string | null>(null);
-
-  const filteredConnections = CONNECTIONS.filter(
-    conn => conn.strength * 100 >= similarityThreshold
-  );
-
-  const filteredRoles = selectedDepartment === "all"
-    ? ROLES
-    : ROLES.filter(role => role.department === selectedDepartment);
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Left Side */}
       <div className="lg:col-span-2 space-y-6">
-        {/* Workload Heatmap */}
-        <Card className="shadow-sm border rounded-xl">
+        <Card className="shadow-sm border rounded-xl" id="tour-workload-heatmap">
           <CardContent className="p-5">
             <h3 className="text-lg font-semibold mb-1">Workload Equity Heatmap</h3>
             <p className="text-xs text-slate-400 mb-4">Task volume vs skill requirement</p>
@@ -779,13 +294,13 @@ function BalanceEquityView() {
             <div className="mt-4 text-xs text-slate-400 flex justify-between">
               <div>
                 <span className="inline-flex items-center mr-3">
-                  <span className="w-3 h-3 bg-green-400 rounded mr-1"></span>Low (0–25)
+                  <span className="w-3 h-3 bg-green-400 rounded mr-1"></span>Low (0-25)
                 </span>
                 <span className="inline-flex items-center mr-3">
-                  <span className="w-3 h-3 bg-amber-400 rounded mr-1"></span>Medium (26–60)
+                  <span className="w-3 h-3 bg-amber-400 rounded mr-1"></span>Medium (26-60)
                 </span>
                 <span className="inline-flex items-center mr-3">
-                  <span className="w-3 h-3 bg-red-500 rounded mr-1"></span>High (61–80)
+                  <span className="w-3 h-3 bg-red-500 rounded mr-1"></span>High (61-80)
                 </span>
                 <span className="inline-flex items-center">
                   <span className="w-3 h-3 bg-gray-300 rounded mr-1"></span>Critical (80+)
@@ -796,8 +311,7 @@ function BalanceEquityView() {
           </CardContent>
         </Card>
 
-        {/* Task Risk Analysis */}
-        <Card className="shadow-sm border rounded-xl">
+        <Card className="shadow-sm border rounded-xl" id="tour-task-risk-analysis">
           <CardContent className="p-5">
             <h3 className="text-lg font-semibold mb-1">Task Risk Analysis</h3>
             <p className="text-xs text-slate-400 mb-4">Task-wise coverage (bubble size = criticality)</p>
@@ -821,10 +335,8 @@ function BalanceEquityView() {
         </Card>
       </div>
 
-      {/* Right Side */}
       <div className="space-y-6">
-        {/* Role Similarity Network */}
-        <Card className="shadow-sm border rounded-xl">
+        <Card className="shadow-sm border rounded-xl" id="tour-role-similarity-network">
           <CardContent className="p-5">
             <div className="flex justify-between items-start mb-4">
               <div>
@@ -836,10 +348,8 @@ function BalanceEquityView() {
               </div>
             </div>
 
-            {/* Network Visualization */}
-            <div className="w-full h-64 bg-white border rounded-md relative overflow-hidden mb-4">
+            <div className="w-full h-64 bg-white border rounded-md relative mb-4">
               <svg viewBox="0 0 100 100" className="w-full h-full">
-                {/* Draw connections */}
                 {CONNECTIONS.map((conn, i) => {
                   const source = ROLES.find(r => r.id === conn.source);
                   const target = ROLES.find(r => r.id === conn.target);
@@ -860,40 +370,33 @@ function BalanceEquityView() {
                   );
                 })}
 
-                {/* Draw nodes */}
-                {ROLES.map((role) => {
-                  return (
-                    <g
-                      key={role.id}
-                      className="cursor-pointer transition-all duration-200"
+                {ROLES.map((role) => (
+                  <g key={role.id} className="cursor-pointer transition-all duration-200">
+                    <circle
+                      cx={role.x}
+                      cy={role.y}
+                      r={role.size * 2}
+                      fill={DEPARTMENT_COLORS[role.department]}
+                      stroke="#fff"
+                      strokeWidth="1"
+                      className="transition-all duration-200"
+                    />
+                    <text
+                      x={role.x}
+                      y={role.y + 0.8}
+                      textAnchor="middle"
+                      fontSize="2.5"
+                      fill="white"
+                      fontWeight="bold"
+                      className="pointer-events-none select-none"
                     >
-                      <circle
-                        cx={role.x}
-                        cy={role.y}
-                        r={role.size * 2}
-                        fill={DEPARTMENT_COLORS[role.department]}
-                        stroke="#fff"
-                        strokeWidth="1"
-                        className="transition-all duration-200"
-                      />
-                      <text
-                        x={role.x}
-                        y={role.y + 0.8}
-                        textAnchor="middle"
-                        fontSize="2.5"
-                        fill="white"
-                        fontWeight="bold"
-                        className="pointer-events-none select-none"
-                      >
-                        {role.name.split(' ').map(word => word[0]).join('')}
-                      </text>
-                    </g>
-                  );
-                })}
+                      {role.name.split(' ').map(word => word[0]).join('')}
+                    </text>
+                  </g>
+                ))}
               </svg>
             </div>
 
-            {/* Filters & Controls */}
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -925,7 +428,6 @@ function BalanceEquityView() {
                 </select>
               </div>
 
-              {/* Department Colors Legend */}
               <div>
                 <label className="text-xs text-slate-600 font-medium mb-2 block">Department Colors</label>
                 <div className="grid grid-cols-2 gap-2">
@@ -941,7 +443,6 @@ function BalanceEquityView() {
                 </div>
               </div>
 
-              {/* Node size info */}
               <div className="text-xs text-slate-500 border-t pt-3">
                 <div className="flex justify-between">
                   <span>Node size: Role importance</span>
@@ -952,8 +453,7 @@ function BalanceEquityView() {
           </CardContent>
         </Card>
 
-        {/* Coverage Scorecards */}
-        <Card className="shadow-sm border rounded-xl">
+        <Card className="shadow-sm border rounded-xl" id="tour-coverage-scorecards">
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -983,22 +483,6 @@ function BalanceEquityView() {
               <div>2 On Track • 3 At Risk • 1 Critical</div>
               <div>Target: Improve to 90%</div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-// Default View for other tabs
-function DefaultView() {
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-3">
-        <Card className="shadow-sm border rounded-xl">
-          <CardContent className="p-8 text-center">
-            <h3 className="text-lg font-semibold text-slate-700 mb-2">View Coming Soon</h3>
-            <p className="text-sm text-slate-500">This section is under development.</p>
           </CardContent>
         </Card>
       </div>

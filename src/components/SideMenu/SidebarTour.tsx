@@ -358,7 +358,7 @@ export class SidebarTourGuide {
             text: 'Let\'s take a quick tour to help you navigate through all the amazing features available to you.',
             attachTo: {
                 element: '#tour-dashboard',
-                on: 'right'
+                on: 'bottom'
             },
             buttons: [
                 {
@@ -387,6 +387,10 @@ export class SidebarTourGuide {
                 {
                     text: 'Got it!',
                     action: createNextAction()
+                },
+                {
+                    text: 'new',
+                    action: nextMenuRedirect('/'),
                 }
             ],
             advanceOn: {
