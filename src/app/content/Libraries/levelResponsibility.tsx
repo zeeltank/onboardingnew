@@ -1,6 +1,14 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
+import Shepherd, { Tour } from 'shepherd.js';
+import 'shepherd.js/dist/css/shepherd.css';
+import {
+  initializeLORTour,
+  isLORTourCompleted,
+  setLORTourCompleted,
+  resetLORTour
+} from './LevelResponsibilityTour';
 
 const LevelResponsibility = () => {
   const [sessionData, setSessionData] = useState<any>({});
@@ -8,6 +16,9 @@ const LevelResponsibility = () => {
   const [attrData, setAttrData] = useState<{ [key: string]: any }>({});
   const [activeLevel, setActiveLevel] = useState('');
   const [activeSection, setActiveSection] = useState<'description' | 'responsibility' | 'business'>('description');
+  const tourRef = useRef<Tour | null>(null);
+  const tourStartedRef = useRef(false);
+  const [isTourActive, setIsTourActive] = useState(false);
 
  const cleanText = (text?: string) => text?.replace(/in SFIA/g, "").trim() || "";
 
@@ -55,6 +66,61 @@ const LevelResponsibility = () => {
     return attrData && attrData[activeLevel] ? attrData[activeLevel] : null;
   }, [attrData, activeLevel]);
 
+  // Section switcher for tour
+  const switchSectionForTour = useCallback((section: 'description' | 'responsibility' | 'business') => {
+    setActiveSection(section);
+  }, []);
+
+  // Initialize tour - auto-starts on first visit
+  useEffect(() => {
+    // Check if tour should start (first visit or triggered)
+    const isFirstVisit = !isLORTourCompleted();
+    const shouldStartTour = isFirstVisit && !tourStartedRef.current;
+
+    console.log('[LOR Tour] isFirstVisit:', isFirstVisit);
+    console.log('[LOR Tour] shouldStartTour:', shouldStartTour);
+    console.log('[LOR Tour] tourStartedRef:', tourStartedRef.current);
+    console.log('[LOR Tour] levelsData.length:', levelsData.length);
+
+    // Auto-start tour on first visit
+    if (shouldStartTour && levelsData.length > 0) {
+      console.log('[LOR Tour] Starting tour...');
+      tourStartedRef.current = true;
+      tourRef.current = initializeLORTour(switchSectionForTour);
+      tourRef.current.start();
+      setIsTourActive(true);
+
+      // Handle tour completion
+      tourRef.current.on('complete', () => {
+        setLORTourCompleted();
+        setIsTourActive(false);
+        console.log('[LOR Tour] Tour completed');
+      });
+
+      // Handle tour cancel
+      tourRef.current.on('cancel', () => {
+        setIsTourActive(false);
+        console.log('[LOR Tour] Tour cancelled');
+      });
+    } else if (shouldStartTour && levelsData.length === 0) {
+      // Wait for data to load then start tour
+      console.log('[LOR Tour] Waiting for data to load...');
+      const timer = setTimeout(() => {
+        if (levelsData.length > 0 && !tourStartedRef.current) {
+          console.log('[LOR Tour] Data loaded, starting tour...');
+          tourStartedRef.current = true;
+          tourRef.current = initializeLORTour(switchSectionForTour);
+          tourRef.current.start();
+          setIsTourActive(true);
+        }
+      }, 500);
+
+      return () => clearTimeout(timer);
+    } else {
+      console.log('[LOR Tour] Tour already completed or started');
+    }
+  }, [levelsData.length, switchSectionForTour]);
+
   const tabs = [
     {
       key: 'description',
@@ -76,7 +142,7 @@ const LevelResponsibility = () => {
   return (
     <div className="w-full flex flex-col bg-background rounded-xl items-center space-y-8 px-4 py-8">
       {/* LEVEL SELECTOR BUTTONS */}
-      <div className="flex flex-wrap gap-3 mb-6 justify-center">
+      <div id="tour-level-selector" className="flex flex-wrap gap-3 mb-6 justify-center">
         {levelsData.map((level) => (
           <button
             key={level.level}
@@ -95,7 +161,7 @@ const LevelResponsibility = () => {
       </div>
 
       {/* TOP TAB SWITCHER */}
-      <div className="w-full max-w-6xl mx-auto">
+      <div id="tour-section-tabs" className="w-full max-w-6xl mx-auto">
         <div className="border-2 border-blue-400 bg-[#f6faff] rounded-2xl shadow-md overflow-hidden">
           <div className="flex flex-row justify-between items-stretch text-center">
             {tabs.map((tab, index) => (
@@ -103,9 +169,9 @@ const LevelResponsibility = () => {
                 <div
                   onClick={() => setActiveSection(tab.key as any)}
                   className={`flex-1 flex flex-col items-center justify-center py-4 cursor-pointer transition-all ${activeSection === tab.key
-                    ? 'bg-[#ACD4FF]'
+                    ? 'bg-[#ACD4FF] shadow-inner'
                     : 'hover:bg-[#eef6ff]'
-                    }`}
+                    } ${isTourActive && activeSection === tab.key ? 'ring-4 ring-blue-300 ring-opacity-70 animate-pulse' : ''}`}
                 >
                   <img src={tab.icon} alt={tab.label} className="w-16 h-16 object-contain mb-2" />
                   <h3 className="text-[#1f2e4c] font-semibold text-sm md:text-base">{tab.label}</h3>
@@ -122,7 +188,7 @@ const LevelResponsibility = () => {
       </div>
 
       {/* LEVEL BADGE - Show for all sections, aligned to start (left) */}
-      <div className="w-full flex justify-start mt-6">
+      <div id="tour-level-badge" className="w-full flex justify-start mt-6">
         <div
           className="px-6 py-3 rounded-2xl border-2 border-[#A4D0FF] shadow max-w-xl"
           style={{
@@ -135,61 +201,61 @@ const LevelResponsibility = () => {
         </div>
       </div>
 
-      
-  {/* DESCRIPTION SECTION */}
-{activeSection === 'description' && activeData && (
-  <div className="w-full max-w-6xl mx-auto mt-6 px-4">
-    <div className="grid grid-cols-2 gap-8">
-      
-      {/* Description Card */}
-      <div
-        className="relative w-full h-[300px] rounded-2xl border-2 border-[#94BEFF] shadow-sm
-                   transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:shadow-blue-200"
-        style={{
-          background:
-            "linear-gradient(90deg, rgba(255,255,255,0.35) 0%, rgba(71,160,255,0.35) 100%)",
-        }}
-      >
-        <h3 className="mt-6 ml-5 text-[#0043CE] text-[24px] font-bold opacity-80">
-          Description
-        </h3>
+      {/* DESCRIPTION SECTION */}
+      {activeSection === 'description' && activeData && (
+        <div id="tour-description-section" className="w-full max-w-6xl mx-auto mt-6 px-4">
+          <div className="grid grid-cols-2 gap-8">
 
-        <hr className="mx-5 my-3 border border-gray-400" />
+            {/* Description Card */}
+            <div
+              id="tour-description-card"
+              className="relative w-full h-[300px] rounded-2xl border-2 border-[#94BEFF] shadow-sm
+                         transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:shadow-blue-200"
+              style={{
+                background:
+                  "linear-gradient(90deg, rgba(255,255,255,0.35) 0%, rgba(71,160,255,0.35) 100%)",
+              }}
+            >
+              <h3 className="mt-6 ml-5 text-[#0043CE] text-[24px] font-bold opacity-80">
+                Description
+              </h3>
 
-        <div className="mx-5 h-[150px] overflow-y-auto pr-2 text-[15px] whitespace-pre-line hide-scrollbar">
-          {cleanText(activeData.essence_level)}
+              <hr className="mx-5 my-3 border border-gray-400" />
+
+              <div className="mx-5 h-[150px] overflow-y-auto pr-2 text-[15px] whitespace-pre-line hide-scrollbar">
+                {cleanText(activeData.essence_level)}
+              </div>
+            </div>
+
+            {/* Guidance Notes Card */}
+            <div
+              id="tour-guidance-card"
+              className="relative w-full h-[300px] rounded-2xl border-2 border-[#94BEFF] shadow-sm
+                         transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:shadow-blue-200"
+              style={{
+                background:
+                  "linear-gradient(90deg, rgba(255,255,255,0.35) 0%, rgba(71,160,255,0.35) 100%)",
+              }}
+            >
+              <h3 className="mt-6 ml-5 text-[#0043CE] text-[24px] font-bold opacity-80">
+                Guidance Notes
+              </h3>
+
+              <hr className="mx-5 my-3 border border-gray-400" />
+
+              <div className="mx-5 h-[150px] overflow-y-auto pr-2 text-[15px] whitespace-pre-line hide-scrollbar">
+                {cleanText(activeData.attribute_guidance_notes)}
+              </div>
+            </div>
+
+          </div>
         </div>
-      </div>
-
-      {/* Guidance Notes Card */}
-      <div
-        className="relative w-full h-[300px] rounded-2xl border-2 border-[#94BEFF] shadow-sm
-                   transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:shadow-blue-200"
-        style={{
-          background:
-            "linear-gradient(90deg, rgba(255,255,255,0.35) 0%, rgba(71,160,255,0.35) 100%)",
-        }}
-      >
-        <h3 className="mt-6 ml-5 text-[#0043CE] text-[24px] font-bold opacity-80">
-          Guidance Notes
-        </h3>
-
-        <hr className="mx-5 my-3 border border-gray-400" />
-
-        <div className="mx-5 h-[150px] overflow-y-auto pr-2 text-[15px] whitespace-pre-line hide-scrollbar">
-          {cleanText(activeData.attribute_guidance_notes)}
-        </div>
-      </div>
-
-    </div>
-  </div>
-)}
-
+      )}
 
       {/* RESPONSIBILITY ATTRIBUTES SECTION */}
       {activeSection === 'responsibility' && levelAttributes?.Attributes && (
-        <div className="w-full max-w-6xl px-4 mt-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div id="tour-responsibility-section" className="w-full max-w-6xl px-4 mt-2">
+          <div id="tour-attribute-cards" className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {Object.entries(levelAttributes.Attributes).map(([key, attr]: [string, any]) => (
               <div
                 key={key}
@@ -207,8 +273,8 @@ const LevelResponsibility = () => {
 
       {/* BUSINESS SKILLS SECTION */}
       {activeSection === 'business' && levelAttributes?.Business_skills && (
-        <div className="w-full max-w-6xl px-4 mt-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div id="tour-business-section" className="w-full max-w-6xl px-4 mt-2">
+          <div id="tour-business-cards" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Object.entries(levelAttributes.Business_skills).map(([key, attr]: [string, any]) => (
               <div
                 key={key}

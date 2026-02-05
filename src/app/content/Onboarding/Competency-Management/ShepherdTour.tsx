@@ -226,7 +226,46 @@ const ShepherdTour: React.FC<ShepherdTourProps> = ({ tabs, steps, onComplete, on
       });
     });
 
-    tour.start();
+    // Wait for DOM elements to be available before starting tour
+    const waitForElements = (): Promise<void> => {
+      return new Promise((resolve) => {
+        const checkElements = () => {
+          const firstTabId = tourSteps[0]?.id;
+          if (firstTabId) {
+            const element = document.querySelector(`#${firstTabId}`);
+            if (element) {
+              resolve();
+              return;
+            }
+          }
+          // If no specific element found, check for any tab element
+          const anyTabElement = document.querySelector('[id^="tab-"]');
+          if (anyTabElement) {
+            resolve();
+            return;
+          }
+          // If still not found, wait a bit longer
+          setTimeout(checkElements, 100);
+        };
+        checkElements();
+      });
+    };
+
+    // Start tour after ensuring elements are available
+    const startTour = async () => {
+      await waitForElements();
+      // Additional delay to ensure smooth rendering
+      setTimeout(() => {
+        try {
+          tour.start();
+        } catch (error) {
+          console.error('Error starting tour:', error);
+          onComplete?.();
+        }
+      }, 200);
+    };
+
+    startTour();
 
     return () => {
       tour.cancel();

@@ -31,10 +31,24 @@ export default function HomePage() {
 
   // Check if onboarding has been completed
   useEffect(() => {
-    const onboardingCompleted = localStorage.getItem("competencyManagementOnboardingCompleted");
-    if (!onboardingCompleted) {
-      setShowWelcomeModal(true);
-    }
+    const checkOnboarding = async () => {
+      try {
+        // Wait for page to be fully mounted
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        const onboardingCompleted = localStorage.getItem("competencyManagementOnboardingCompleted");
+        if (!onboardingCompleted) {
+          // Small delay to ensure DOM is ready
+          setTimeout(() => {
+            setShowWelcomeModal(true);
+          }, 200);
+        }
+      } catch (error) {
+        console.error('Error checking onboarding status:', error);
+      }
+    };
+
+    checkOnboarding();
   }, []);
 
   const handleCloseMobileSidebar = () => {
