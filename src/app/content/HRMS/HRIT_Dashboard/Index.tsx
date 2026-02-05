@@ -6,7 +6,7 @@ import { PayrollChart } from '../HRIT_Dashboard/PayrollChart';
 import { PerformanceChart } from '../HRIT_Dashboard/PerformanceChart';
 import { InsightsCard } from '../HRIT_Dashboard/InsightsCard';
 import { Users, UserCheck, Calendar, DollarSign, TrendingUp, Clock } from "lucide-react";
-import { Card } from "@/components/ui/card"; // Added missing import
+import { Card } from "@/components/ui/card";
 
 const Index = () => {
     return (
@@ -15,10 +15,11 @@ const Index = () => {
 
             <main className="container mx-auto px-6 py-8">
                 {/* KPI Overview Section */}
-                <section className="mb-8">
+                <section id="overview-section" className="mb-8">
                     <h2 className="text-2xl font-bold text-foreground mb-4">Overview</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                         <KPICard
+                            id="kpi-present-today"
                             title="Present Today"
                             value="92.3%"
                             change={3.2}
@@ -28,55 +29,59 @@ const Index = () => {
                         />
 
                         <KPICard
+                            id="kpi-leave-utilization"
                             title="Leave Utilization"
                             value="68.5%"
                             change={-2.1}
                             icon={Calendar}
                             trend="down"
-                             iconColor="text-blue-400"
+                            iconColor="text-blue-400"
                         />
                         <KPICard
+                            id="kpi-payroll-accuracy"
                             title="Payroll Accuracy"
                             value="99.1%"
                             change={0.8}
                             icon={DollarSign}
                             trend="up"
-                             iconColor="text-blue-400"
+                            iconColor="text-blue-400"
                         />
                         <KPICard
+                            id="kpi-productivity-index"
                             title="Productivity Index"
                             value="87.4"
                             change={1.5}
                             icon={TrendingUp}
                             trend="up"
-                             iconColor="text-blue-400"
+                            iconColor="text-blue-400"
                         />
                         {/* <KPICard
-              title="Processing Time"
-              value="3.2 hrs"
-              change={-12.3}
-              icon={Clock}
-              trend="up"
-            /> */}
+                            title="Processing Time"
+                            value="3.2 hrs"
+                            change={-12.3}
+                            icon={Clock}
+                            trend="up"
+                        /> */}
                         <KPICard
+                            id="kpi-active-employees"
                             title="Active Employees"
                             value="1,247"
                             change={2.8}
                             icon={Users}
                             trend="up"
-                             iconColor="text-blue-400"
+                            iconColor="text-blue-400"
                         />
                     </div>
                 </section>
 
                 {/* Attendance Module */}
-                <section className="mb-8">
+                <section id="attendance-section" className="mb-8">
                     <h2 className="text-2xl font-bold text-foreground mb-4">Attendance</h2>
                     <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                        <div className="lg:col-span-3">
+                        <div id="attendance-chart" className="lg:col-span-3">
                             <AttendanceChart />
                         </div>
-                        <div className="lg:col-span-2">
+                        <div id="leave-chart" className="lg:col-span-2">
                             <LeaveChart />
                         </div>
                     </div>
@@ -113,12 +118,12 @@ const Index = () => {
                 </section> */}
 
                 {/* Leave & Payroll Module */}
-                <section className="mb-8">
+                <section id="payroll-section" className="mb-8">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div className="lg:col-span-2">
+                        <div id="payroll-chart" className="lg:col-span-2">
                             <PayrollChart />
                         </div>
-                        <div className="lg:col-span-1">
+                        <div id="insights-card" className="lg:col-span-1">
                             <InsightsCard />
                         </div>
                     </div>
