@@ -66,9 +66,20 @@ const SkillLibrary: React.FC<SkillLibraryProps> = ({ showTour, onTourComplete, o
   const isTaxonomyPage = pathname.includes("/taxonomy");
 
 
-  // Sync showMainTour with showTour prop
+  // Only show tour when triggered from sidebar via sessionStorage
+  // Ignore showTour prop to prevent tour from showing on normal page load
   useEffect(() => {
-    setShowMainTour(showTour ?? false);
+    // Check if tour was triggered from sidebar via sessionStorage
+    const sidebarTourTriggered = sessionStorage.getItem('triggerPageTour');
+
+    // If triggered from sidebar, show tour and clear the flag
+    if (sidebarTourTriggered) {
+      console.log('[SkillLibrary] Tour triggered from sidebar, showing tour');
+      setShowMainTour(true);
+      // Clear the flag so tour doesn't show on refresh
+      sessionStorage.removeItem('triggerPageTour');
+    }
+    // Note: showTour prop is intentionally ignored to prevent tour on normal page load
   }, [showTour]);
 
 
@@ -357,4 +368,3 @@ export default SkillLibrary;
 // };
 
 // export default SkillLibrary;
-
