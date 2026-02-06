@@ -46,21 +46,20 @@ const EmployeeDirectory = () => {
   const [userProfiles, setUserProfiles] = useState([]);
   const [showTour, setShowTour] = useState(false);
 
-
-  // Check if first visit and show tour
+  // Check if tour should start (only when navigated from sidebar tour)
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const hasSeenTour = localStorage.getItem('employeeDirectoryTourSeen');
-      if (!hasSeenTour && sessionData.user_id) {
-        // Delay tour start slightly to ensure UI is ready
-        setTimeout(() => {
-          setShowTour(true);
-        }, 1000);
-      }
-    }
-  }, [sessionData.user_id]);
+    const triggerTour = sessionStorage.getItem('triggerPageTour');
+    console.log('[User] triggerPageTour value:', triggerTour);
 
-  // Handle tour completion
+    if (triggerTour === 'employee-directory') {
+      console.log('[User] Starting page tour automatically');
+      setShowTour(true);
+      // Clean up the flag
+      sessionStorage.removeItem('triggerPageTour');
+    }
+  }, []);
+
+  // Check if first visit and show tour (disabled - now using sidebar trigger)
   const handleTourComplete = useCallback(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('employeeDirectoryTourSeen', 'true');

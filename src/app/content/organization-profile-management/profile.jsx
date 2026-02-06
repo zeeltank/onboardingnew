@@ -16,7 +16,7 @@ const OrganizationProfileManagement = () => {
     const triggerTour = sessionStorage.getItem('triggerPageTour');
     console.log('[Profile] triggerPageTour value:', triggerTour);
 
-    if (triggerTour === 'true') {
+    if (triggerTour === 'organization-profile') {
       console.log('[Profile] Starting page tour automatically');
       setShowTour(true);
       // Clean up the flag

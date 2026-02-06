@@ -32,10 +32,22 @@ const TaskActivityStreamTour: React.FC<TaskActivityStreamTourProps> = ({ onCompl
       .shepherd-content {
         border-radius: 0.875rem 0.875rem 0 0 !important;
       }
-      .shepherd-header {
+      .shepherd-element.shepherd-has-title > .shepherd-header {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
         background: linear-gradient(90deg, #3b82f6, #2563eb) !important;
         padding: 1rem !important;
         border-radius: 0.875rem 0.875rem 0 0 !important;
+      }
+      .shepherd-element.shepherd-has-title > .shepherd-header .shepherd-title {
+        font-size: 1.125rem !important;
+        font-weight: 600 !important;
+        color: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important;
+        flex: 1 !important;
       }
       .shepherd-arrow {
         z-index: 999;

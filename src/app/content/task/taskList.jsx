@@ -12,6 +12,20 @@ const TaskAssignment = () => {
   const [selectedEmployees, setSelectedEmployees] = useState([]);
   const [previewData, setPreviewData] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [showTour, setShowTour] = useState(false);
+
+  // Check if tour should start (only when navigated from sidebar tour)
+  useEffect(() => {
+    const triggerTour = sessionStorage.getItem('triggerPageTour');
+    console.log('[TaskList] triggerPageTour value:', triggerTour);
+
+    if (triggerTour === 'task-list') {
+      console.log('[TaskList] Starting page tour automatically');
+      setShowTour(true);
+      // Clean up the flag
+      sessionStorage.removeItem('triggerPageTour');
+    }
+  }, []);
 
   const views = [
     { id: 'progress', label: 'Progress Dashboard', icon: 'BarChart3' },
@@ -125,7 +139,7 @@ const TaskAssignment = () => {
       )}
 
       {/* Task Assignment Tour */}
-      <TaskAssignmentTour onComplete={() => console.log('Tour completed')} onSwitchView={handleSwitchView} />
+      {showTour && <TaskAssignmentTour onComplete={() => { setShowTour(false); }} onSwitchView={handleSwitchView} />}
 
     </div>
   );

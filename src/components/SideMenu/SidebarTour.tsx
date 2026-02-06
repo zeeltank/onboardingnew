@@ -314,8 +314,27 @@ export class SidebarTourGuide {
 
                 if (nextPageUrl) {
                     console.log('[SidebarTour] Next button clicked, navigating to:', nextPageUrl);
+
+                    // Determine the trigger value based on the destination page
+                    let triggerValue = 'true';
+                    if (nextPageUrl.includes('/organization-dashboard')) {
+                        triggerValue = 'organization-dashboard';
+                    } else if (nextPageUrl.includes('/organization-profile')) {
+                        triggerValue = 'organization-profile';
+                    } else if (nextPageUrl.includes('/activityStream') || nextPageUrl.includes('/activity-stream') || nextPageUrl.includes('/task/activityStream')) {
+                        triggerValue = 'activity-stream';
+                    } else if (nextPageUrl.includes('/taskList') || nextPageUrl.includes('/task/taskList') || nextPageUrl.includes('/task/list') || nextPageUrl.includes('/task-management')) {
+                        triggerValue = 'task-list';
+                    } else if (nextPageUrl.includes('taskActivityStream') || nextPageUrl.includes('task/activity')) {
+                        triggerValue = 'task-activity';
+                    } else if (nextPageUrl.includes('/user') || nextPageUrl.includes('employee-directory')) {
+                        triggerValue = 'employee-directory';
+                    } else if (nextPageUrl === '/' || nextPageUrl.includes('Dashboard')) {
+                        triggerValue = 'dashboard';
+                    }
+
                     // Set flag to trigger page tour on destination page using sessionStorage
-                    sessionStorage.setItem('triggerPageTour', 'true');
+                    sessionStorage.setItem('triggerPageTour', triggerValue);
 
                     if (this.navigateToPage) {
                         this.navigateToPage(nextPageUrl);
@@ -332,8 +351,26 @@ export class SidebarTourGuide {
             return () => {
                 console.log('[SidebarTour] New button clicked, navigating to:', url);
 
+                // Determine the trigger value based on the destination page
+                let triggerValue = 'true';
+                if (url.includes('organization-dashboard')) {
+                    triggerValue = 'organization-dashboard';
+                } else if (url.includes('organization-profile')) {
+                    triggerValue = 'organization-profile';
+                } else if (url.includes('activityStream') || url.includes('activity-stream') || url.includes('task/activityStream')) {
+                    triggerValue = 'activity-stream';
+                } else if (url.includes('taskList') || url.includes('task/taskList') || url.includes('task/list') || url.includes('/task') || url.includes('task-management')) {
+                    triggerValue = 'task-list';
+                } else if (url.includes('taskActivityStream') || url.includes('task/activity')) {
+                    triggerValue = 'task-activity';
+                } else if (url.includes('/user') || url.includes('employee-directory')) {
+                    triggerValue = 'employee-directory';
+                } else if (url === '/' || url.includes('Dashboard')) {
+                    triggerValue = 'dashboard';
+                }
+
                 // Set flag to trigger page tour on destination page using sessionStorage
-                sessionStorage.setItem('triggerPageTour', 'true');
+                sessionStorage.setItem('triggerPageTour', triggerValue);
 
                 // Hide and pause sidebar tour before navigating
                 this.hideTour();
@@ -357,7 +394,7 @@ export class SidebarTourGuide {
             title: 'Welcome to Your Dashboard!',
             text: 'Let\'s take a quick tour to help you navigate through all the amazing features available to you.',
             attachTo: {
-                element: '#tour-dashboard',
+                element: '#tour-header',
                 on: 'bottom'
             },
             buttons: [
@@ -368,6 +405,24 @@ export class SidebarTourGuide {
                 },
                 {
                     text: 'Start Tour',
+                    action: createNextAction()
+                }
+            ]
+        });
+        currentStepIndex++;
+
+        // Header step
+        steps.push({
+            id: 'header',
+            title: '📍 Main Header',
+            text: 'This is your main header showing your welcome message and search functionality. Use the search bar to quickly find employees.',
+            attachTo: {
+                element: '#tour-header',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Next',
                     action: createNextAction()
                 }
             ]
