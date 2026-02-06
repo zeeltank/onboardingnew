@@ -183,16 +183,22 @@ export default function MainDashboard() {
     setActiveTab("balance-equity");
   }, []);
 
-  // Initialize tour on mount
+  // Initialize tour only when triggered via sidebar tour flow
   useEffect(() => {
-    if (!isTourCompleted()) {
+    // Check if tour was triggered via sidebar tour flow
+    const triggerTour = sessionStorage.getItem('triggerPageTour');
+
+    if (triggerTour && !isTourCompleted()) {
+      // Clear the trigger flag immediately to prevent re-triggering
+      sessionStorage.removeItem('triggerPageTour');
+
       const timer = setTimeout(() => {
         // Pass setActiveTab as tab switcher callback
         const tour = initializeTour((tabId: string) => {
           setActiveTab(tabId);
         });
         tour.start();
-      }, 2000); // Increased delay to 2 seconds for elements to render
+      }, 1000); // Delay to allow elements to render
       return () => clearTimeout(timer);
     }
   }, [setActiveTab]);

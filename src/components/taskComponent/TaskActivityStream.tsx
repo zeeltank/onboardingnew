@@ -160,16 +160,16 @@ export function TaskActivityStream() {
   const [selectedEmployee, setSelectedEmployee] = useState<string>('all');
   const [showTour, setShowTour] = useState(false);
 
-  // Check if first visit and show tour
+  // Check if tour should start (only when navigated from sidebar tour)
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const hasSeenTour = localStorage.getItem('taskActivityStreamTourSeen');
-      if (!hasSeenTour) {
-        // Delay tour start slightly to ensure UI is ready
-        setTimeout(() => {
-          setShowTour(true);
-        }, 1000);
-      }
+    const triggerTour = sessionStorage.getItem('triggerPageTour');
+    console.log('[TaskActivityStream] triggerPageTour value:', triggerTour);
+
+    if (triggerTour === 'task-activity') {
+      console.log('[TaskActivityStream] Starting page tour automatically');
+      setShowTour(true);
+      // Clean up the flag
+      sessionStorage.removeItem('triggerPageTour');
     }
   }, []);
 

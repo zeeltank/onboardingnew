@@ -242,28 +242,6 @@ export function Dashboard() {
     fetchDashboard();
   }, [sessionData]);
 
-  // 🔹 Initialize Tour when data is loaded
-  useEffect(() => {
-    // Check if we should start the detail tour (triggered from sidebar)
-    const urlParams = new URLSearchParams(window.location.search);
-    const shouldStartTour = urlParams.get('startTour') === 'true';
-
-    if (!loading && data) {
-      if (shouldStartTour) {
-        // Start tour immediately without checking localStorage
-        initializeTour(true);
-      } else {
-        initializeTour(false);
-      }
-    }
-    return () => {
-      if (tourRef.current) {
-        tourRef.current.cancel();
-        tourRef.current = null;
-      }
-    };
-  }, [loading, data]);
-
   // 🔹 Tour initialization function
   const initializeTour = useCallback((forceStart = false) => {
     // Check if tour was already completed (only if not forcing start)
@@ -699,6 +677,37 @@ export function Dashboard() {
       }, 500);
     }, 100);
   }, [loading, data]);
+
+  // 🔹 Initialize Tour when data is loaded (from sidebar navigation)
+  useEffect(() => {
+    // Check if we should trigger the tour (from sidebar tour navigation)
+    const triggerTour = sessionStorage.getItem('triggerPageTour');
+    console.log('Tour trigger check - triggerTour:', triggerTour);
+    const shouldStartTour = triggerTour === 'organization-dashboard';
+    console.log('Tour trigger check - shouldStartTour:', shouldStartTour);
+
+    // Clear the trigger flag immediately
+    if (triggerTour) {
+      sessionStorage.removeItem('triggerPageTour');
+      console.log('Triggering organization dashboard tour from navigation...');
+    }
+
+    // Start tour if triggered from sidebar
+    if (shouldStartTour) {
+      console.log('Starting organization dashboard tour...');
+      initializeTour(true);
+    }
+  }, [initializeTour]);
+
+  // 🔹 Cleanup tour when component unmounts
+  useEffect(() => {
+    return () => {
+      if (tourRef.current) {
+        tourRef.current.cancel();
+        tourRef.current = null;
+      }
+    };
+  }, []);
 
   // 🔹 Function to restart tour
   const restartTour = () => {

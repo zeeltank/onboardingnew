@@ -11,7 +11,7 @@ export const DashboardHeader = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const { showTour, isRedirecting, startTour, cancelTour, completeTour } = useShepherdTour(
+  const { showTour, startTour, cancelTour, completeTour } = useShepherdTour(
     "dashboardHeader",
     HRITDashboardTourSteps,
     false

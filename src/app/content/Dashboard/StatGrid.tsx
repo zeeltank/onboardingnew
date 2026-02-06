@@ -286,11 +286,11 @@ export default function Dashboard() {
 
   // Initialize Shepherd.js tour
   useEffect(() => {
-    // Check if tour has already been completed
-    const tourCompleted = localStorage.getItem('dashboardTourCompleted');
-
     // Check if we should trigger the tour (from sidebar tour navigation)
     const triggerTour = sessionStorage.getItem('triggerPageTour');
+
+    // Store whether tour should start
+    const shouldStartTour = triggerTour === 'dashboard';
 
     // Clear the trigger flag
     if (triggerTour) {
@@ -298,9 +298,9 @@ export default function Dashboard() {
       console.log('Triggering dashboard tour from navigation...');
     }
 
-    // Don't start tour if already completed (unless triggered)
-    if (tourCompleted && !triggerTour) {
-      console.log('Dashboard tour already completed, skipping...');
+    // Don't start tour if not triggered from sidebar
+    if (!shouldStartTour) {
+      console.log('Tour not triggered, skipping...');
       return;
     }
 

@@ -71,20 +71,26 @@ const LevelResponsibility = () => {
     setActiveSection(section);
   }, []);
 
-  // Initialize tour - auto-starts on first visit
+  // Initialize tour only when triggered via sidebar tour flow
   useEffect(() => {
-    // Check if tour should start (first visit or triggered)
-    const isFirstVisit = !isLORTourCompleted();
-    const shouldStartTour = isFirstVisit && !tourStartedRef.current;
+    // Check if tour was triggered via sidebar tour flow
+    const triggerTour = sessionStorage.getItem('triggerPageTour');
 
+    // Only start tour if triggered via sidebar AND not already started
+    const isFirstVisit = !isLORTourCompleted();
+
+    console.log('[LOR Tour] triggerTour:', triggerTour);
     console.log('[LOR Tour] isFirstVisit:', isFirstVisit);
-    console.log('[LOR Tour] shouldStartTour:', shouldStartTour);
     console.log('[LOR Tour] tourStartedRef:', tourStartedRef.current);
     console.log('[LOR Tour] levelsData.length:', levelsData.length);
 
-    // Auto-start tour on first visit
-    if (shouldStartTour && levelsData.length > 0) {
-      console.log('[LOR Tour] Starting tour...');
+    // Start tour only if triggered via sidebar AND tour hasn't been completed
+    if (triggerTour && isFirstVisit && !tourStartedRef.current && levelsData.length > 0) {
+      console.log('[LOR Tour] Starting tour (triggered via sidebar)...');
+
+      // Clear the trigger flag immediately to prevent re-triggering
+      sessionStorage.removeItem('triggerPageTour');
+
       tourStartedRef.current = true;
       tourRef.current = initializeLORTour(switchSectionForTour);
       tourRef.current.start();
@@ -102,9 +108,13 @@ const LevelResponsibility = () => {
         setIsTourActive(false);
         console.log('[LOR Tour] Tour cancelled');
       });
-    } else if (shouldStartTour && levelsData.length === 0) {
+    } else if (triggerTour && isFirstVisit && !tourStartedRef.current && levelsData.length === 0) {
       // Wait for data to load then start tour
       console.log('[LOR Tour] Waiting for data to load...');
+
+      // Clear the trigger flag immediately to prevent re-triggering
+      sessionStorage.removeItem('triggerPageTour');
+
       const timer = setTimeout(() => {
         if (levelsData.length > 0 && !tourStartedRef.current) {
           console.log('[LOR Tour] Data loaded, starting tour...');
@@ -117,7 +127,7 @@ const LevelResponsibility = () => {
 
       return () => clearTimeout(timer);
     } else {
-      console.log('[LOR Tour] Tour already completed or started');
+      console.log('[LOR Tour] Tour not started - either not triggered or already completed');
     }
   }, [levelsData.length, switchSectionForTour]);
 
