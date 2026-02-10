@@ -223,20 +223,37 @@ export const useShepherdTour = (
     };
   }, []);
 
-  // Check if tour should be shown
+  // Check if tour should be shown - only from sidebar tour (sessionStorage) or explicit URL param
   useEffect(() => {
-    const tourCompleted = localStorage.getItem(`${tourId}TourCompleted`);
-    const shouldShowTour = searchParams.get("showTour") === "true";
+    // Check if tour was triggered from sidebar tour (primary trigger)
+    const sidebarTrigger = sessionStorage.getItem('triggerPageTour');
 
-    if (!tourCompleted || shouldShowTour) {
-      if (!isRedirecting && !tourCompleted) {
-        setIsRedirecting(true);
-        router.replace(`?showTour=true`);
-        return;
-      }
+    // Check URL param (secondary trigger)
+    const urlShowTour = searchParams.get("showTour") === "true";
+
+    // Only start tour if triggered from sidebar tour OR explicitly via URL
+    // Do NOT start on normal page load/refresh
+    const shouldShowTour = sidebarTrigger === 'HRIT-dashboard' || urlShowTour;
+
+    console.log('[HRIT Tour] Sidebar trigger:', sidebarTrigger);
+    console.log('[HRIT Tour] URL showTour:', urlShowTour);
+    console.log('[HRIT Tour] Should show:', shouldShowTour);
+
+    if (shouldShowTour) {
       setShowTour(true);
+
+      // Clear the sidebar trigger so tour doesn't reappear on refresh
+      if (sidebarTrigger === 'HRIT-dashboard') {
+        sessionStorage.removeItem('triggerPageTour');
+      }
+
+      // Clear URL param if it was set
+      if (urlShowTour) {
+        setIsRedirecting(true);
+        router.replace(window.location.pathname);
+      }
     }
-  }, [router, searchParams, isRedirecting, tourId]);
+  }, [router, searchParams]);
 
   // Configure tour steps
   useEffect(() => {
