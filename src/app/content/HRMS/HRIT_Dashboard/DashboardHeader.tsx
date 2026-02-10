@@ -10,6 +10,7 @@ import { useShepherdTour, HRITDashboardTourSteps } from "./HRITdashboardtour ste
 export const DashboardHeader = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  
 
   const { showTour, startTour, cancelTour, completeTour } = useShepherdTour(
     "dashboardHeader",

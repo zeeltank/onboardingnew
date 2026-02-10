@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import DataTable, { TableColumn, TableStyles } from "react-data-table-component";
 import { Search, Printer } from "lucide-react";
 import DatePicker from "react-datepicker";
@@ -12,6 +12,8 @@ import autoTable from "jspdf-autotable";
 import EmployeeSelector from "../../User-Attendance/components/EmployeeSelector";
 import { Employee } from "../../User-Attendance/types/attendance";
 import { Button } from "@/components/ui/button";
+import { DepartmentWiseReportTour } from "./DepartmentWiseReportTour";
+
 
 // Extend Employee with attendance row fields
 type AttendanceRow = {
@@ -38,6 +40,9 @@ export default function Home() {
   const [data, setData] = useState<AttendanceRow[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Tour instance ref
+  const tourRef = useRef<DepartmentWiseReportTour | null>(null);
+
   const [sessionData, setSessionData] = useState({
     url: "",
     token: "",
@@ -59,6 +64,37 @@ export default function Home() {
         userId: parsedData.user_id || "",
       });
     }
+  }, []);
+
+  // Initialize and check for tour trigger
+  useEffect(() => {
+    // Initialize tour instance
+    tourRef.current = new DepartmentWiseReportTour();
+
+    // Check if tour should be triggered (only via sidebar tour flow)
+    const triggerValue = sessionStorage.getItem('triggerPageTour');
+
+    if (triggerValue === 'department-wise-report' || triggerValue === 'true') {
+      console.log('Department Wise Report tour triggered via sidebar');
+
+      // Clear the trigger immediately so tour doesn't restart on refresh
+      sessionStorage.removeItem('triggerPageTour');
+
+      // Start the tour after a short delay to ensure DOM is ready
+      setTimeout(() => {
+        tourRef.current?.startTour();
+      }, 500);
+    }
+
+    // Resume tour if it was paused
+    tourRef.current?.resumeTour();
+
+    // Cleanup on unmount
+    return () => {
+      if (tourRef.current?.isTourActive()) {
+        tourRef.current?.cancelTour();
+      }
+    };
   }, []);
 
   // ✅ Department selection handler
@@ -234,9 +270,9 @@ export default function Home() {
   };
 
   return (
-    <div className="p-6 space-y-6 min-h-screen bg-background rounded-xl">
+    <div className="p-6 space-y-6 min-h-screen bg-background rounded-xl" id="tour-page-container">
       <div className="flex items-center justify-between mb-6">
-        <div>
+        <div id="tour-page-title">
           <h1 className="text-2xl font-bold text-foreground">Department Wise Report</h1>
           {/* <p className="text-sm text-muted-foreground mt-1">
                 Manage your organization's information, Department structure.
@@ -246,7 +282,7 @@ export default function Home() {
 
       {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 w-full">
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-full" id="tour-from-date">
           <label className="block mb-1 font-semibold">From Date</label>
           <DatePicker
             selected={fromDate}
@@ -255,7 +291,7 @@ export default function Home() {
             dateFormat="dd-MM-yyyy"
           />
         </div>
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-full" id="tour-to-date">
           <label className="block mb-1 font-semibold">To Date</label>
           <DatePicker
             selected={toDate}
@@ -264,7 +300,7 @@ export default function Home() {
             dateFormat="dd-MM-yyyy"
           />
         </div>
-        <div className="col-span-2 flex flex-col gap-4">
+        <div className="col-span-2 flex flex-col gap-4" id="tour-employee-selector">
           <EmployeeSelector
             multiSelect
             empMultiSelect={true}
@@ -275,7 +311,7 @@ export default function Home() {
             className="w-full"
           />
         </div>
-        <div className="flex justify-center w-full col-span-4">
+        <div className="flex justify-center w-full col-span-4" id="tour-search-button">
           <Button
             onClick={handleSearch}
             disabled={loading || !sessionData.token}
@@ -289,7 +325,7 @@ export default function Home() {
 
       {/* Export Buttons */}
       {data.length > 0 && (
-        <div className="flex gap-3 flex-wrap justify-end">
+        <div className="flex gap-3 flex-wrap justify-end" id="tour-export-buttons">
 
           <Button
             onClick={() => window.print()}
@@ -315,7 +351,7 @@ export default function Home() {
       )}
 
       {/* Data Table */}
-      <div className="rounded-2xl overflow-hidden shadow">
+      <div className="rounded-2xl overflow-hidden shadow" id="tour-data-table">
         <DataTable
           columns={columns}
           data={data}

@@ -9,6 +9,7 @@ import {
   setLORTourCompleted,
   resetLORTour
 } from './LevelResponsibilityTour';
+import LevelResponsibilityTour from '../Libraries/levelResponsibilyTourstart';
 
 const LevelResponsibility = () => {
   const [sessionData, setSessionData] = useState<any>({});
@@ -19,8 +20,29 @@ const LevelResponsibility = () => {
   const tourRef = useRef<Tour | null>(null);
   const tourStartedRef = useRef(false);
   const [isTourActive, setIsTourActive] = useState(false);
+  const [showTour, setShowTour] = useState(false);
 
  const cleanText = (text?: string) => text?.replace(/in SFIA/g, "").trim() || "";
+  // Check if tour should start (only when navigated from sidebar tour)
+  useEffect(() => {
+    const triggerTour = sessionStorage.getItem('triggerPageTour');
+    console.log('[User] triggerPageTour value:', triggerTour);
+
+    if (triggerTour === 'earning-object-repository') {
+      console.log('[User] Starting page tour automatically');
+      setShowTour(true);
+      // Clean up the flag
+      sessionStorage.removeItem('triggerPageTour');
+    }
+  }, []);
+
+  // Check if first visit and show tour (disabled - now using sidebar trigger)
+  const handleTourComplete = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('levelOfResponsibilityTourSeen', 'true');
+    }
+    setShowTour(false);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -112,18 +134,22 @@ const LevelResponsibility = () => {
       // Wait for data to load then start tour
       console.log('[LOR Tour] Waiting for data to load...');
 
-      // Clear the trigger flag immediately to prevent re-triggering
-      sessionStorage.removeItem('triggerPageTour');
-
       const timer = setTimeout(() => {
-        if (levelsData.length > 0 && !tourStartedRef.current) {
+        // Check trigger again (it might still be set)
+        const triggerTour = sessionStorage.getItem('triggerPageTour');
+        if (triggerTour && levelsData.length > 0 && !tourStartedRef.current) {
           console.log('[LOR Tour] Data loaded, starting tour...');
+          // Clear the trigger flag
+          sessionStorage.removeItem('triggerPageTour');
+
           tourStartedRef.current = true;
           tourRef.current = initializeLORTour(switchSectionForTour);
           tourRef.current.start();
           setIsTourActive(true);
+        } else if (!triggerTour) {
+          console.log('[LOR Tour] Trigger was cleared while waiting');
         }
-      }, 500);
+      }, 1000);
 
       return () => clearTimeout(timer);
     } else {
@@ -299,7 +325,13 @@ const LevelResponsibility = () => {
           </div>
         </div>
       )}
+
+      {/* Tour Component */}
+      {showTour && <LevelResponsibilityTour onComplete={handleTourComplete} />}
     </div>
+
+
+
   );
 };
 
