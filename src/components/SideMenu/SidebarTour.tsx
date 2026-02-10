@@ -402,6 +402,9 @@ export class SidebarTourGuide {
                     else if (nextPageUrl.includes('/Payroll/Monthly-Payroll') || nextPageUrl.includes('monthly-payroll') || nextPageUrl.includes('Monthly-Payroll')) {
                         triggerValue = 'monthly-payroll';
                     }
+                    else if (nextPageUrl.includes('/LMS/MyLearningDashboard') || nextPageUrl.includes('/MyLearningDashboard')) {
+                        triggerValue = 'my-learning-dashboard';
+                    }
 
                     // Set flag to trigger page tour on destination page using sessionStorage
                     sessionStorage.setItem('triggerPageTour', triggerValue);
@@ -499,6 +502,9 @@ export class SidebarTourGuide {
                 }
                 else if (url.includes('/Payroll/Monthly-Payroll') || url.includes('monthly-payroll') || url.includes('Monthly-Payroll')) {
                     triggerValue = 'monthly-payroll';
+                }
+                else if (url.includes('/LMS/MyLearningDashboard') || url.includes('/MyLearningDashboard')) {
+                    triggerValue = 'my-learning-dashboard';
                 }
 
                 // Set flag to trigger page tour on destination page using sessionStorage
