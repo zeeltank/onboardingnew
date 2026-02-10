@@ -53,7 +53,8 @@ interface Interview {
   status: string;
 }
 
-export function Dashboard() {
+// ✅ Separate component that uses useSearchParams - wrapped in Suspense
+function DashboardContent() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [openPage, setOpenPage] = useState<string | null>(null);
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
@@ -119,24 +120,31 @@ export function Dashboard() {
       </div>
 
       {/* Main Content */}
-      <Suspense fallback={<Loader />}>
-        {activeTab === "dashboard" && (
-          <>
-            {/* Stats Cards */}
-            <DashboardStats />
+      {activeTab === "dashboard" && (
+        <>
+          {/* Stats Cards */}
+          <DashboardStats />
 
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <UpcomingInterviews onReschedule={(interview) => { setSelectedInterview(interview); setActiveTab("schedule"); }} />
-              <CandidatePipeline />
-            </div>
-          </>
-        )}
-        {activeTab === "schedule" && <DynamicScheduleInterview interview={selectedInterview} candidateId={candidate || undefined} positionId={job || undefined} />}
-        {activeTab === "candidates" && <DynamicCandidates />}
-        {activeTab === "interview-panel" && <DynamicInterviewPanels />}
-        {/* {activeTab === "feedback" && <DynamicFeedback />} */}
-      </Suspense>
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <UpcomingInterviews onReschedule={(interview) => { setSelectedInterview(interview); setActiveTab("schedule"); }} />
+            <CandidatePipeline />
+          </div>
+        </>
+      )}
+      {activeTab === "schedule" && <DynamicScheduleInterview interview={selectedInterview} candidateId={candidate || undefined} positionId={job || undefined} />}
+      {activeTab === "candidates" && <DynamicCandidates />}
+      {activeTab === "interview-panel" && <DynamicInterviewPanels />}
+      {/* {activeTab === "feedback" && <DynamicFeedback />} */}
     </div>
+  );
+}
+
+// ✅ Export the Dashboard component wrapped in Suspense
+export function Dashboard() {
+  return (
+    <Suspense fallback={<Loader />}>
+      <DashboardContent />
+    </Suspense>
   );
 }
