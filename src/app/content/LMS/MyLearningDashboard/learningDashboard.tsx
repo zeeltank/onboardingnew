@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 // import Header from '../../components/ui/Header';
 import Breadcrumb from "../../../../components/ui/BreadcrumbNavigation";
 import { Button } from "./../../../../components/ui/button";
@@ -8,10 +8,8 @@ import SkillProgressTracker from "@/app/content/LMS/MyLearningDashboard/SkillPro
 import LearningCalendar from "@/app/content/LMS/MyLearningDashboard/LearningCalendar";
 import LearningStats from "@/app/content/LMS/MyLearningDashboard/LearningStats";
 import QuickActions from "@/app/content/LMS/MyLearningDashboard/QuickActions";
+import ViewDetail from "../ViewChepter/ViewDetail";
 import { Plus, Search, BookOpen, CheckCircle, Award, Clock } from "lucide-react";
-import Shepherd, { Tour } from 'shepherd.js';
-import 'shepherd.js/dist/css/shepherd.css';
-import { createLearningDashboardTour, createLearningDashboardTourSteps } from './learningDashboardTourSteps';
 
 // Type definitions
 interface Trend {
@@ -31,6 +29,8 @@ interface OverviewStat {
 
 interface Course {
   id: number;
+  subject_id?: number;
+  standard_id?: number;
   title: string;
   description: string;
   thumbnail: string;
@@ -45,10 +45,12 @@ interface Course {
   lessons: number;
   enrolledCount: number;
   rating: number;
+  enrollment_status?: string | null;
+  jobrole?: string;
 }
 
 interface Tab {
-  id: 'progress' | 'completed' | 'recommended';
+  id: 'progress' | 'completed';
   label: string;
   count: number;
 }
@@ -65,6 +67,7 @@ interface ApiSubject {
   chapter_list: string;
   content_category: string;
   sub_institute_id: number;
+  jobrole?: string;
 }
 
 // Icon mapper for ProgressOverviewCard
@@ -88,8 +91,6 @@ const IconMapper = ({ name, size = 24, color = 'currentColor' }: { name: string;
 };
 
 const MyLearningDashboard: React.FC = () => {
-  // Tour instance reference
-  const tourRef = useRef<Tour | null>(null);
 
   const [sessionData, setSessionData] = useState({
     url: '',
@@ -100,33 +101,38 @@ const MyLearningDashboard: React.FC = () => {
   });
 
   // Load session data
-useEffect(() => {
-  const userData = localStorage.getItem("userData");
-  if (userData) {
-    const { APP_URL, token, sub_institute_id, org_type, user_id } = JSON.parse(userData);
-    setSessionData({
-      url: APP_URL,
-      token,
-      subInstituteId: sub_institute_id,
-      orgType: org_type,
-      userId: user_id,
-    });
-  }
-}, []);
+  useEffect(() => {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const { APP_URL, token, sub_institute_id, org_type, user_id } = JSON.parse(userData);
+      setSessionData({
+        url: APP_URL,
+        token,
+        subInstituteId: sub_institute_id,
+        orgType: org_type,
+        userId: user_id,
+      });
+    }
+  }, []);
 
-// ✅ STEP-2: Load enrolled courses from localStorage on page refresh
-useEffect(() => {
-  const savedEnrolled = localStorage.getItem("enrolledCourses");
-  if (savedEnrolled) {
-    setInProgressCourses(JSON.parse(savedEnrolled));  // Load previous enrolled courses
-  }
-}, []);
+  // STEP-2: Load enrolled courses from localStorage on page refresh
+  useEffect(() => {
+    const savedEnrolled = localStorage.getItem("enrolledCourses");
+    if (savedEnrolled) {
+      setInProgressCourses(JSON.parse(savedEnrolled));
+    }
+  });
 
 
   const [activeTab, setActiveTab] = useState<'progress' | 'completed' | 'recommended'>('progress');
   const [apiSubjects, setApiSubjects] = useState<ApiSubject[]>([]);
   const [inProgressCourses, setInProgressCourses] = useState<Course[]>([]);
   const [enrolledCourses, setEnrolledCourses] = useState<Course[]>([]);
+  const [completedCoursesState, setCompletedCoursesState] = useState<Course[]>([]);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [viewSubjectId, setViewSubjectId] = useState(0);
+  const [viewStandardId, setViewStandardId] = useState(0);
+  const [coursesLoading, setCoursesLoading] = useState(false);
 
   const fetchCoursesAndRefresh = () => {
     // Switch to Progress tab
@@ -138,61 +144,96 @@ useEffect(() => {
     setActiveTab("progress"); // move user to In Progress tab
   };
 
-const handleEnrollSuccess = (course: Course) => {
-  setInProgressCourses(prev => {
-    const updated = [...prev, course];
-    localStorage.setItem("enrolledCourses", JSON.stringify(updated)); // SAVE
-    return updated;
-  });
+  const handleEnrollSuccess = (course: Course) => {
+    setInProgressCourses(prev => {
+      const updated = [...prev, course];
+      localStorage.setItem("enrolledCourses", JSON.stringify(updated));
+      return updated;
+    });
 
-  setApiSubjects(prev =>
-    prev.filter(c => c.subject_id !== course.id)
-  );
+    setApiSubjects(prev =>
+      prev.filter(c => c.subject_id !== course.id)
+    );
 
-  setActiveTab("progress");
-};
+    setActiveTab("progress");
+  };
+
+  const handleContinueLearning = (subject_id: number, standard_id: number) => {
+    setViewSubjectId(subject_id);
+    setViewStandardId(standard_id);
+    setIsViewOpen(true);
+  };
+
+  const handleCloseViewDetail = () => {
+    setIsViewOpen(false);
+    // Refresh enrolled courses when returning from view detail
+    if (sessionData.url && sessionData.userId) {
+      fetchEnrolledCourses();
+    }
+  };
 
 
-  useEffect(() => {
   const fetchEnrolledCourses = async () => {
     if (!sessionData.url || !sessionData.userId) return;
 
+    setCoursesLoading(true);
     try {
       const response = await fetch(
-        `${sessionData.url}/api/enrolled_courses?user_id=${sessionData.userId}&type=API`
+        `${sessionData.url}/api/enrolled_courses?user_id=${sessionData.userId}&type=API&token=${sessionData.token}`
       );
 
       const data = await response.json();
       console.log("ENROLLED COURSES:", data);
 
-      if (data.status === true && Array.isArray(data.courses)) {
-        const mapped = data.courses.map((item: any) => ({
-          id: item.subject_id,
-          title: item.subject_name,
-          description: item.subject_name,
-          thumbnail: item.display_image,
-          progress: item.progress || 0,
-          skills: [item.subject_name],
-          level: 'Beginner',
-          duration: 0,
-          lessons: 0,
-          enrolledCount: 0,
-          rating: 0
+      if (data.status === true && Array.isArray(data.data)) {
+        const completedCoursesKeys = JSON.parse(localStorage.getItem('completedCourses') || '[]');
+
+        const mapped = data.data.map((item: any) => ({
+          id: item.subject_id || item.id,
+          subject_id: item.subject_id || item.id,
+          standard_id: item.standard_id || 0,
+          title: item.display_name,
+          description: item.subject_type,
+          thumbnail: item.display_image || 'https://erp.triz.co.in/storage/SubStdMapping/SubStdMap_2020-12-29_05-56-03.svg',
+          progress: 0,
+          timeRemaining: 0,
+          nextLesson: '',
+          skills: [item.subject_type],
+          level: 'Beginner' as const,
+          duration: 120,
+          lessons: 8,
+          enrolledCount: 150,
+          rating: 4.3,
+          jobrole: item.jobrole || data.jobrole || null,
+          enrollment_status: item.enrollment_status || null
         }));
 
-        setInProgressCourses(mapped);
+        // Separate completed and in-progress courses based on enrollment_status
+        // Enrolled courses (enrollment_status === 'enrolled') → In Progress tab
+        // Completed courses (enrollment_status === 'completed') → Completed tab
+        const completed = mapped.filter((course: Course) =>
+          course.enrollment_status === 'completed'
+        );
+        const inProgress = mapped.filter((course: Course) =>
+          course.enrollment_status === 'enrolled'
+        );
+
+        setInProgressCourses(inProgress);
+        setCompletedCoursesState(completed);
       }
 
     } catch (error) {
       console.log("ERROR fetching enrolled:", error);
+    } finally {
+      setCoursesLoading(false);
     }
   };
 
-  if (sessionData.url && sessionData.userId) {
-    fetchEnrolledCourses();
-  }
-}, [sessionData]);
-
+  useEffect(() => {
+    if (sessionData.url && sessionData.userId) {
+      fetchEnrolledCourses();
+    }
+  }, [sessionData]);
 
 
 
@@ -206,8 +247,7 @@ const handleEnrollSuccess = (course: Course) => {
       try {
         const response = await fetch(`${sessionData.url}/lms/course_master?type=API&sub_institute_id=${sessionData.subInstituteId}&syear=2025&user_id=${sessionData.userId}&user_profile_name=Admin`);
         const data = await response.json();
-        console.log('API Response:', data); // For debugging
-        // Aggregate all subjects from all categories
+        console.log('API Response:', data);
         const allSubjects: ApiSubject[] = Object.values(data.lms_subject || {}).flat() as ApiSubject[];
         setApiSubjects(allSubjects);
       } catch (error) {
@@ -217,113 +257,27 @@ const handleEnrollSuccess = (course: Course) => {
 
     if (sessionData.url) {
       fetchCourses();
-      
     }
   }, [sessionData.url, sessionData.subInstituteId, sessionData.userId]);
 
-  /**
-   * Initialize Learning Dashboard Tour
-   * Tour only starts when triggered via sidebar tour flow (sessionStorage trigger)
-   * NOT on normal page load or refresh
-   */
-  useEffect(() => {
-    // Check if tour was triggered via sidebar tour flow
-    const triggerPageTour = sessionStorage.getItem('triggerPageTour');
-
-    // Only start tour if triggered for this page ('my-learning-dashboard' or 'true')
-    if (triggerPageTour === 'my-learning-dashboard' || triggerPageTour === 'true') {
-      console.log('[LearningDashboard] Tour triggered, initializing...');
-
-      // Clear the trigger so tour doesn't restart on refresh
-      sessionStorage.removeItem('triggerPageTour');
-
-      // Check if tour was already completed
-      const tourCompleted = localStorage.getItem('learningDashboardTourCompleted');
-      if (tourCompleted === 'true') {
-        console.log('[LearningDashboard] Tour already completed, skipping...');
-        return;
-      }
-
-      // Initialize tour after a short delay to ensure DOM is ready
-      const initializeTour = () => {
-        // Check if all required elements exist
-        const requiredElements = [
-          '#tour-page-header',
-          '#tour-browse-courses',
-          '#tour-progress-overview',
-          '#tour-my-courses'
-        ];
-
-        const allElementsExist = requiredElements.every(selector => {
-          const el = document.querySelector(selector);
-          if (!el) {
-            console.warn(`[LearningDashboard] Tour element not found: ${selector}`);
-          }
-          return !!el;
-        });
-
-        if (!allElementsExist) {
-          console.log('[LearningDashboard] Waiting for elements to be ready...');
-          setTimeout(initializeTour, 500);
-          return;
-        }
-
-        // Create and start the tour
-        const tour = createLearningDashboardTour();
-        tourRef.current = tour;
-
-        // Add tour steps
-        const steps = createLearningDashboardTourSteps(tour);
-        steps.forEach(step => {
-          tour.addStep(step);
-        });
-
-        // Handle tour completion
-        tour.on('complete', () => {
-          localStorage.setItem('learningDashboardTourCompleted', 'true');
-          console.log('[LearningDashboard] Tour completed!');
-        });
-
-        // Handle tour cancellation
-        tour.on('cancel', () => {
-          localStorage.setItem('learningDashboardTourCompleted', 'true');
-          console.log('[LearningDashboard] Tour cancelled!');
-        });
-
-        // Start the tour
-        console.log('[LearningDashboard] Starting tour...');
-        tour.start();
-      };
-
-      // Delay tour start to ensure all elements are rendered
-      setTimeout(initializeTour, 300);
-    } else {
-      console.log('[LearningDashboard] Tour not triggered (normal page load), skipping...');
-    }
-
-    // Cleanup tour on unmount
-    return () => {
-      if (tourRef.current) {
-        tourRef.current.cancel();
-        tourRef.current = null;
-      }
-    };
-  }, []); // Empty dependency array - only run once on mount
-
   const mapApiToCourse = (api: ApiSubject): Course => ({
     id: api.subject_id,
+    subject_id: api.subject_id,
+    standard_id: api.standard_id,
     title: api.subject_name,
-    description: api.subject_name,
+    description: api.standard_name,
     thumbnail: api.display_image || 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=225&fit=crop',
     progress: 0,
     timeRemaining: 0,
     nextLesson: '',
     skills: [api.subject_name],
     level: 'Beginner' as const,
-    duration: 0,
-    lessons: 0,
-    enrolledCount: 0,
-    rating: 0
+    duration: 120,
+    lessons: 8,
+    enrolledCount: 150,
+    rating: 4.3,
+    jobrole: api.jobrole,
+    enrollment_status: null
   });
 
   const coursesInProgress: Course[] = enrolledCourses.length > 0 ? enrolledCourses : inProgressCourses;
@@ -337,40 +291,40 @@ const handleEnrollSuccess = (course: Course) => {
     setApiSubjects(prev => prev.filter(c => c.subject_id !== course.id));
   };
 
-  // Dynamic data for progress overview - using consistent icon names
+  // Dynamic data for progress overview
   const overviewStats: OverviewStat[] = [
     {
       title: "Courses In Progress",
       value: coursesInProgress.length,
       total: null,
-      icon: "book-open", // consistent lowercase with hyphen
+      icon: "book-open",
       color: "primary",
       trend: { type: "up", value: `+${coursesInProgress.length} enrolled` },
       description: coursesInProgress.length > 0 ? "Keep up the momentum!" : "Start learning today!"
     },
     {
       title: "Completed Courses",
-      value: completedCourses.length,
+      value: completedCoursesState.length,
       total: null,
-      icon: "check-circle", // consistent lowercase with hyphen
+      icon: "check-circle",
       color: "success",
-      trend: { type: "up", value: `+${completedCourses.length} completed` },
-      description: completedCourses.length > 0 ? "Great progress!" : "Complete your first course"
+      trend: { type: "up", value: `+${completedCoursesState.length} completed` },
+      description: completedCoursesState.length > 0 ? "Great progress!" : "Complete your first course"
     },
     {
       title: "Skills Earned",
-      value: coursesInProgress.length + completedCourses.length,
-      total: apiSubjects.length + coursesInProgress.length + completedCourses.length,
-      icon: "award", // consistent lowercase
+      value: coursesInProgress.length + completedCoursesState.length,
+      total: apiSubjects.length + coursesInProgress.length + completedCoursesState.length,
+      icon: "award",
       color: "secondary",
-      trend: { type: "up", value: `+${coursesInProgress.length + completedCourses.length} skills` },
-      description: `${apiSubjects.length + coursesInProgress.length + completedCourses.length - (coursesInProgress.length + completedCourses.length)} more to reach your goal`
+      trend: { type: "up", value: `+${coursesInProgress.length + completedCoursesState.length} skills` },
+      description: `${apiSubjects.length + coursesInProgress.length + completedCoursesState.length - (coursesInProgress.length + completedCoursesState.length)} more to reach your goal`
     },
     {
       title: "Learning Hours",
       value: coursesInProgress.reduce((total, course) => total + (course.duration || 0), 0),
       total: 60,
-      icon: "clock", // consistent lowercase
+      icon: "clock",
       color: "warning",
       trend: { type: "up", value: `+${coursesInProgress.reduce((total, course) => total + (course.duration || 0), 0)} hours` },
       description: `${60 - coursesInProgress.reduce((total, course) => total + (course.duration || 0), 0)} hours to monthly goal`
@@ -380,8 +334,7 @@ const handleEnrollSuccess = (course: Course) => {
 
   const tabs: Tab[] = [
     { id: 'progress', label: 'In Progress', count: coursesInProgress.length },
-    { id: 'completed', label: 'Completed', count: completedCourses.length },
-    { id: 'recommended', label: 'Recommended', count: recommendedCourses.length }
+    { id: 'completed', label: 'Completed', count: completedCoursesState.length },
   ];
 
   const getCurrentCourses = (): Course[] => {
@@ -389,160 +342,144 @@ const handleEnrollSuccess = (course: Course) => {
       case 'progress':
         return coursesInProgress;
       case 'completed':
-        return completedCourses;
-      case 'recommended':
-        return recommendedCourses;
+        return completedCoursesState;
       default:
         return coursesInProgress;
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* <Header /> */}
+    <>
+      {!isViewOpen ? (
+        <div className="min-h-screen bg-background">
+          {/* <Header /> */}
 
-      <main className="pt-16 pb-20 md:pb-8">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          {/* <Breadcrumb /> */}
+          <main className="pt-16 pb-20 md:pb-8">
+            <div className="max-w-7xl mx-auto px-6 py-8">
+              {/* <Breadcrumb /> */}
 
-          {/* Page Header */}
-          <div
-            id="tour-page-header"
-            className="flex flex-col md:flex-row md:items-center md:justify-between mb-8"
-          >
-            <div>
-              <h1 className="text-3xl font-bold text-foreground mb-2">My Learning Dashboard</h1>
-              <p className="text-muted-foreground">
-                Track your progress and continue your learning journey
-              </p>
-            </div>
-            <div className="mt-4 md:mt-0">
-              <Button
-                id="tour-browse-courses"
-                variant="default"
-              >
-                <Plus className="mr-2 h-4 w-4" /> Browse Courses
-              </Button>
-            </div>
-          </div>
+              {/* Page Header */}
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+                <div>
+                  <h1 className="text-3xl font-bold text-foreground mb-2">My Learning Dashboard</h1>
+                  <p className="text-muted-foreground">
+                    Track your progress and continue your learning journey
+                  </p>
+                </div>
+                <div className="mt-4 md:mt-0">
+                  <Button variant="default">
+                    <Plus className="mr-2 h-4 w-4" /> Browse Courses
+                  </Button>
+                </div>
+              </div>
 
-          {/* Progress Overview Cards */}
-          <div
-            id="tour-progress-overview"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-          >
-            {overviewStats.map((stat, index) => {
-              // Generate tour ID based on stat title
-              let tourId = '';
-              if (stat.title === 'Courses In Progress') tourId = 'tour-stat-courses-progress';
-              else if (stat.title === 'Completed Courses') tourId = 'tour-stat-completed';
-              else if (stat.title === 'Skills Earned') tourId = 'tour-stat-skills';
-              else if (stat.title === 'Learning Hours') tourId = 'tour-stat-hours';
-              
-              return (
-                <div key={index} id={tourId}>
+              {/* Progress Overview Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                {overviewStats.map((stat, index) => (
                   <ProgressOverviewCard
+                    key={index}
                     {...stat}
                   />
-                </div>
-              );
-            })}
-          </div>
+                ))}
+              </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Main Content Area */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* Course Tabs */}
-              <div id="tour-my-courses" className="bg-card border border-border rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold text-foreground">My Courses</h2>
-                  <div className="flex items-center space-x-1 bg-muted p-1 rounded-xl">
-                    {tabs.map((tab) => (
-                      <button
-                        key={tab.id}
-                        id={tab.id === 'progress' ? 'tour-tab-in-progress' : tab.id === 'completed' ? 'tour-tab-completed' : 'tour-tab-recommended'}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === tab.id
-                          ? 'bg-card text-foreground shadow-sm'
-                          : 'text-muted-foreground hover:text-foreground'
-                          }`}
-                      >
-                        {tab.label}
-                        <span className="ml-2 px-2 py-0.5 bg-muted-foreground/20 rounded-full text-xs">
-                          {tab.count}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Course Grid */}
-                <div
-                  id="tour-course-grid"
-                  className="grid grid-cols-1 xl:grid-cols-2 gap-6 overflow-y-auto hide-scrollbar"
-                  style={{
-                    maxHeight: "500px",   // shows only first 4 cards approx
-                    paddingRight: "6px",
-                  }}
-                >
-                  {getCurrentCourses().map((course) => (
-                    <CourseCard
-                      key={course.id}
-                      course={course}
-                      variant={activeTab}
-                      onEnrollSuccess={() => handleEnrollSuccess(course)}
-                    />
-                  ))}
-                </div>
-
-
-                {getCurrentCourses().length === 0 && (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                      <BookOpen className="h-6 w-6 text-muted-foreground" />
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                {/* Main Content Area */}
+                <div className="lg:col-span-2 space-y-8">
+                  {/* Course Tabs */}
+                  <div className="bg-card border border-border rounded-2xl p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-xl font-semibold text-foreground">My Courses</h2>
+                      <div className="flex items-center space-x-1 bg-muted p-1 rounded-xl">
+                        {tabs.map((tab) => (
+                          <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === tab.id
+                              ? 'bg-card text-foreground shadow-sm'
+                              : 'text-muted-foreground hover:text-foreground'
+                              }`}
+                          >
+                            {tab.label}
+                            <span className="ml-2 px-2 py-0.5 bg-muted-foreground/20 rounded-full text-xs">
+                              {tab.count}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <h3 className="text-lg font-medium text-foreground mb-2">
-                      No courses found
-                    </h3>
-                    <p className="text-muted-foreground mb-4">
-                      {activeTab === 'progress' && "Start learning by enrolling in a course"}
-                      {activeTab === 'completed' && "Complete your first course to see it here"}
-                      {activeTab === 'recommended' && "We'll recommend courses based on your learning history"}
-                    </p>
-                    <Button variant="outline">
-                      <Search className="mr-2 h-4 w-4" />
-                      Browse Courses
-                    </Button>
+
+                    {/* Loading Indicator */}
+                    {coursesLoading && (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                        <span className="ml-3 text-muted-foreground">Loading courses...</span>
+                      </div>
+                    )}
+
+                    {/* Course Grid */}
+                    {!coursesLoading && (
+                      <div
+                        className="grid grid-cols-1 xl:grid-cols-2 gap-6 overflow-y-auto hide-scrollbar"
+                        style={{
+                          maxHeight: "500px",
+                          paddingRight: "6px",
+                        }}
+                      >
+                        {getCurrentCourses().map((course) => (
+                          <CourseCard
+                            key={course.id}
+                            course={course}
+                            onEnrollSuccess={() => handleEnrollSuccess(course)}
+                            onContinue={() => handleContinueLearning(course.subject_id || course.id, course.standard_id || 0)}
+                          />
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Empty State */}
+                    {!coursesLoading && getCurrentCourses().length === 0 && (
+                      <div className="text-center py-12">
+                        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                          <BookOpen className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                        <h3 className="text-lg font-medium text-foreground mb-2">
+                          No courses found
+                        </h3>
+                        <p className="text-muted-foreground mb-4">
+                          {activeTab === 'progress' && "Start learning by enrolling in a course"}
+                          {activeTab === 'completed' && "Complete your first course to see it here"}
+                        </p>
+                        <Button variant="outline">
+                          <Search className="mr-2 h-4 w-4" />
+                          Browse Courses
+                        </Button>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
 
-              {/* Quick Actions */}
-              <div id="tour-quick-actions">
-                <QuickActions />
+                  {/* Quick Actions */}
+                  <QuickActions />
+                </div>
+
+                {/* Left Sidebar */}
+                <div className="lg:col-span-1 space-y-6">
+                  <SkillProgressTracker />
+                  <LearningCalendar />
+                </div>
+
+                {/* Right Sidebar */}
+                <div className="lg:col-span-1">
+                  <LearningStats />
+                </div>
               </div>
             </div>
-
-            {/* Left Sidebar */}
-            <div className="lg:col-span-1 space-y-6">
-              <div id="tour-skill-progress">
-                <SkillProgressTracker />
-              </div>
-              <div id="tour-learning-calendar">
-                <LearningCalendar />
-              </div>
-            </div>
-
-            {/* Right Sidebar */}
-            <div className="lg:col-span-1">
-              <div id="tour-learning-stats">
-                <LearningStats />
-              </div>
-            </div>
-          </div>
+          </main>
         </div>
-      </main>
-    </div>
+      ) : (
+        <ViewDetail subject_id={viewSubjectId} standard_id={viewStandardId} onClose={handleCloseViewDetail} />
+      )}
+    </>
   );
 };
 
