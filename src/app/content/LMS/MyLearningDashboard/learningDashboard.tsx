@@ -359,7 +359,7 @@ const MyLearningDashboard: React.FC = () => {
               {/* <Breadcrumb /> */}
 
               {/* Page Header */}
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+              <div id="tour-page-header" className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
                 <div>
                   <h1 className="text-3xl font-bold text-foreground mb-2">My Learning Dashboard</h1>
                   <p className="text-muted-foreground">
@@ -367,14 +367,14 @@ const MyLearningDashboard: React.FC = () => {
                   </p>
                 </div>
                 <div className="mt-4 md:mt-0">
-                  <Button variant="default">
+                  <Button id="tour-browse-courses" variant="default">
                     <Plus className="mr-2 h-4 w-4" /> Browse Courses
                   </Button>
                 </div>
               </div>
 
               {/* Progress Overview Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div id="tour-progress-overview" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {overviewStats.map((stat, index) => (
                   <ProgressOverviewCard
                     key={index}
@@ -385,7 +385,7 @@ const MyLearningDashboard: React.FC = () => {
 
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                 {/* Main Content Area */}
-                <div className="lg:col-span-2 space-y-8">
+                <div id="tour-my-courses" className="lg:col-span-2 space-y-8">
                   {/* Course Tabs */}
                   <div className="bg-card border border-border rounded-2xl p-6">
                     <div className="flex items-center justify-between mb-6">
@@ -420,6 +420,7 @@ const MyLearningDashboard: React.FC = () => {
                     {/* Course Grid */}
                     {!coursesLoading && (
                       <div
+                        id="tour-course-grid"
                         className="grid grid-cols-1 xl:grid-cols-2 gap-6 overflow-y-auto hide-scrollbar"
                         style={{
                           maxHeight: "500px",
@@ -459,17 +460,23 @@ const MyLearningDashboard: React.FC = () => {
                   </div>
 
                   {/* Quick Actions */}
-                  <QuickActions />
+                  <div id="tour-quick-actions">
+                    <QuickActions />
+                  </div>
                 </div>
 
                 {/* Left Sidebar */}
                 <div className="lg:col-span-1 space-y-6">
-                  <SkillProgressTracker />
-                  <LearningCalendar />
+                  <div id="tour-skill-progress">
+                    <SkillProgressTracker />
+                  </div>
+                  <div id="tour-learning-calendar">
+                    <LearningCalendar />
+                  </div>
                 </div>
 
                 {/* Right Sidebar */}
-                <div className="lg:col-span-1">
+                <div id="tour-learning-stats" className="lg:col-span-1">
                   <LearningStats />
                 </div>
               </div>

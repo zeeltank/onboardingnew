@@ -1,4 +1,4 @@
-import Shepherd, { Tour } from 'shepherd.js';
+import Shepherd from 'shepherd.js';
 import 'shepherd.js/dist/css/shepherd.css';
 
 export interface TourStep {
@@ -49,7 +49,7 @@ export interface SectionItem {
 }
 
 export class SidebarTourGuide {
-    public tour: Tour | null = null;  // Made public for external access
+    public tour: Shepherd.Tour | null = null;  // Made public for external access
     private sections: SectionItem[] = [];
     private isActive = false;
     private isPaused = false;
@@ -331,7 +331,10 @@ export class SidebarTourGuide {
 
                     // Determine the trigger value based on the destination page
                     let triggerValue = 'true';
-                    if (nextPageUrl.includes('/organization-dashboard')) {
+                    if (nextPageUrl.includes('/MyLearningDashboard') || nextPageUrl.includes('my-learning-dashboard') || nextPageUrl.includes('LMS/MyLearning')) {
+                        triggerValue = 'my-learning-dashboard';
+                    }
+                    else if (nextPageUrl.includes('/organization-dashboard')) {
                         triggerValue = 'organization-dashboard';
                     } else if (nextPageUrl.includes('/organization-profile')) {
                         triggerValue = 'organization-profile';
@@ -348,7 +351,7 @@ export class SidebarTourGuide {
                     } else if (nextPageUrl.includes('/HRIT-Dashboard')) {
                         triggerValue = 'HRIT-dashboard';
                     }
-                    else if (nextPageUrl === '/' || nextPageUrl.includes('Dashboard')) {
+                    else if (nextPageUrl === '/' || (nextPageUrl.includes('Dashboard') && !nextPageUrl.includes('MyLearningDashboard'))) {
                         triggerValue = 'dashboard';
                     }
                     else if (nextPageUrl.includes('/my-attendance') || nextPageUrl.includes('/attendance')) {
@@ -402,9 +405,15 @@ export class SidebarTourGuide {
                     else if (nextPageUrl.includes('/Payroll/Monthly-Payroll') || nextPageUrl.includes('monthly-payroll') || nextPageUrl.includes('Monthly-Payroll')) {
                         triggerValue = 'monthly-payroll';
                     }
-                    else if (nextPageUrl.includes('/LMS/MyLearningDashboard') || nextPageUrl.includes('/MyLearningDashboard')) {
-                        triggerValue = 'my-learning-dashboard';
+                    // 🎓 Learning Catalog trigger
+                    else if (nextPageUrl.includes('/LMS/dashboard') || nextPageUrl.includes('learning-catalog') || nextPageUrl.includes('/content/LMS')) {
+                        triggerValue = 'learning-catalog';
                     }
+                    // 📝 Assessment Library trigger
+                    else if (nextPageUrl.includes('/Assessment-Library') || nextPageUrl.includes('/assessment-library') || nextPageUrl.includes('Assessment-Library')) {
+                        triggerValue = 'assessment-library';
+                    }
+
 
                     // Set flag to trigger page tour on destination page using sessionStorage
                     sessionStorage.setItem('triggerPageTour', triggerValue);
@@ -441,7 +450,10 @@ export class SidebarTourGuide {
 
                 // Determine the trigger value based on the destination page
                 let triggerValue = 'true';
-                if (url.includes('organization-dashboard')) {
+                // Check for My Learning Dashboard first - before generic Dashboard check
+                if (url.includes('/MyLearningDashboard') || url.includes('my-learning-dashboard') || url.includes('LMS/MyLearning')) {
+                    triggerValue = 'my-learning-dashboard';
+                } else if (url.includes('organization-dashboard')) {
                     triggerValue = 'organization-dashboard';
                 } else if (url.includes('organization-profile')) {
                     triggerValue = 'organization-profile';
@@ -455,7 +467,7 @@ export class SidebarTourGuide {
                     triggerValue = 'employee-directory';
                 } else if (url.includes('/HRIT-Dashboard')) {
                     triggerValue = 'HRIT-dashboard';
-                } else if (url === '/' || url.includes('Dashboard')) {
+                } else if (url === '/' || (url.includes('Dashboard') && !url.includes('MyLearningDashboard'))) {
                     triggerValue = 'dashboard';
                 } else if (url.includes('/my-attendance') || url.includes('/attendance')) {
                     triggerValue = 'attendance-dashboard';
@@ -463,8 +475,7 @@ export class SidebarTourGuide {
                     triggerValue = 'user-attendance';
                 } else if (url.includes('/AttendanceReport')) {
                     triggerValue = 'attendance-report';
-                }
-                else if (url.includes('/EarlyGoingReport') || url.includes('/early-going') || url.includes('/earlygoing')) {
+                } else if (url.includes('/EarlyGoingReport') || url.includes('/early-going') || url.includes('/earlygoing')) {
                     triggerValue = 'early-going';
                 } else if (url.includes('/DepartmentWiseReport')) {
                     triggerValue = 'department-wise-report';
@@ -472,39 +483,34 @@ export class SidebarTourGuide {
                     triggerValue = 'apply-leave';
                 } else if (url.includes('/Leave-Management/Leave-Authorisation') || url.includes('leave-authorisation') || url.includes('Leave-Authorisation')) {
                     triggerValue = 'leave-authorisation';
-                }
-                else if (url.includes('/Leave-Management/My-Leave') || url.includes('My-Leave') || url.includes('my-leave')) {
+                } else if (url.includes('/Leave-Management/My-Leave') || url.includes('My-Leave') || url.includes('my-leave')) {
                     triggerValue = 'my-leave';
-                }
-                else if (url.includes('/Leave-Management/Leave-Type') || url.includes('Leave-Type') || url.includes('leave-type')) {
+                } else if (url.includes('/Leave-Management/Leave-Type') || url.includes('Leave-Type') || url.includes('leave-type')) {
                     triggerValue = 'leave-type';
-                }
-                else if (url.includes('/Leave-Management/Leave-Allocation') || url.includes('Leave-Allocation') || url.includes('leave-allocation')) {
+                } else if (url.includes('/Leave-Management/Leave-Allocation') || url.includes('Leave-Allocation') || url.includes('leave-allocation')) {
                     triggerValue = 'leave-allocation';
-                }
-                else if (url.includes('/Leave-Management/Holiday-Master') || url.includes('holiday-master') || url.includes('Holiday-Master')) {
+                } else if (url.includes('/Leave-Management/Holiday-Master') || url.includes('holiday-master') || url.includes('Holiday-Master')) {
                     triggerValue = 'holiday-master';
-                }
-                else if (url.includes('/Payroll/Payroll-type') || url.includes('payroll-type') || url.includes('Payroll-Type')) {
+                } else if (url.includes('/Payroll/Payroll-type') || url.includes('payroll-type') || url.includes('Payroll-Type')) {
                     triggerValue = 'payroll-types';
-                }
-                else if (url.includes('/Payroll/Payroll-Deduction') || url.includes('payroll-deduction') || url.includes('Payroll-Deduction')) {
+                } else if (url.includes('/Payroll/Payroll-Deduction') || url.includes('payroll-deduction') || url.includes('Payroll-Deduction')) {
                     triggerValue = 'payroll-deduction';
-                }
-                else if (url.includes('/Payroll/Salary-Structure') || url.includes('salary-structure') || url.includes('Salary-Structure')) {
+                } else if (url.includes('/Payroll/Salary-Structure') || url.includes('salary-structure') || url.includes('Salary-Structure')) {
                     triggerValue = 'salary-structure';
-                }
-                else if (url.includes('/Payroll/form-16') || url.includes('form-16') || url.includes('Form-16')) {
+                } else if (url.includes('/Payroll/form-16') || url.includes('form-16') || url.includes('Form-16')) {
                     triggerValue = 'form-16';
-                }
-                else if (url.includes('/Payroll/Salary-Certificate') || url.includes('salary-certificate') || url.includes('Salary-Certificate')) {
+                } else if (url.includes('/Payroll/Salary-Certificate') || url.includes('salary-certificate') || url.includes('Salary-Certificate')) {
                     triggerValue = 'salary-certificate';
-                }
-                else if (url.includes('/Payroll/Monthly-Payroll') || url.includes('monthly-payroll') || url.includes('Monthly-Payroll')) {
+                } else if (url.includes('/Payroll/Monthly-Payroll') || url.includes('monthly-payroll') || url.includes('Monthly-Payroll')) {
                     triggerValue = 'monthly-payroll';
                 }
-                else if (url.includes('/LMS/MyLearningDashboard') || url.includes('/MyLearningDashboard')) {
-                    triggerValue = 'my-learning-dashboard';
+                // 🎓 Learning Catalog trigger
+                else if (url.includes('/LMS/dashboard') || url.includes('learning-catalog') || url.includes('/content/LMS')) {
+                    triggerValue = 'learning-catalog';
+                }
+                // 📝 Assessment Library trigger
+                else if (url.includes('/Assessment-Library') || url.includes('/assessment-library') || url.includes('Assessment-Library')) {
+                    triggerValue = 'assessment-library';
                 }
 
                 // Set flag to trigger page tour on destination page using sessionStorage

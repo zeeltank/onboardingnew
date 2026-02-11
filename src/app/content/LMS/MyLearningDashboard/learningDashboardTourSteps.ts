@@ -1,4 +1,4 @@
-import Shepherd, { Tour, Step } from 'shepherd.js';
+import Shepherd from 'shepherd.js';
 import 'shepherd.js/dist/css/shepherd.css';
 
 /**
@@ -26,7 +26,7 @@ export interface LearningDashboardTourStep {
     };
 }
 
-export const createLearningDashboardTourSteps = (tourInstance: Tour): LearningDashboardTourStep[] => {
+export const createLearningDashboardTourSteps = (tourInstance: Shepherd.Tour): LearningDashboardTourStep[] => {
     const steps: LearningDashboardTourStep[] = [
         {
             id: 'welcome',
@@ -371,7 +371,7 @@ export const createLearningDashboardTourSteps = (tourInstance: Tour): LearningDa
 /**
  * Create and configure the learning dashboard tour
  */
-export const createLearningDashboardTour = (): Tour => {
+export const createLearningDashboardTour = (): Shepherd.Tour => {
     const tour = new Shepherd.Tour({
         defaultStepOptions: {
             cancelIcon: {
