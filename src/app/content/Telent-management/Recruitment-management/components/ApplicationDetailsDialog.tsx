@@ -188,7 +188,7 @@ const ApplicationDetailsDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+        <DialogHeader id="tour-dialog-header">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-2xl font-bold text-gray-900">
               Application Details
@@ -206,7 +206,7 @@ const ApplicationDetailsDialog = ({
 
         <div className="space-y-6">
           {/* Applicant Basic Info */}
-          <div className="bg-gray-50 rounded-lg p-6">
+          <div className="bg-gray-50 rounded-lg p-6" id="tour-dialog-basic-info">
             <div className="flex items-start justify-between">
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
@@ -239,7 +239,7 @@ const ApplicationDetailsDialog = ({
 
           {/* Job Information */}
           {job && (
-            <div className="border border-gray-200 rounded-lg p-6">
+            <div className="border border-gray-200 rounded-lg p-6" id="tour-dialog-job-info">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <Building className="w-5 h-5 mr-2 text-blue-600" />
                 Job Information
@@ -269,7 +269,7 @@ const ApplicationDetailsDialog = ({
 
           {/* AI Screening Results */}
           {candidate && candidate.isScreened && (
-            <div className="border border-gray-200 rounded-lg p-6">
+            <div className="border border-gray-200 rounded-lg p-6" id="tour-dialog-ai-scores">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <Star className="w-5 h-5 mr-2 text-yellow-600" />
                 AI Screening Results
@@ -308,7 +308,7 @@ const ApplicationDetailsDialog = ({
                 <div className="text-sm text-gray-600">Overall Outcome</div>
               </div>
               {candidate.aiRecommendation && (
-                <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                <div className="mt-4 p-3 bg-blue-50 rounded-lg" id="tour-dialog-ai-recommendation">
                   <div className="flex items-center mb-2">
                     <TrendingUp className="w-4 h-4 mr-2 text-blue-600" />
                     <span className="font-medium text-blue-900">AI Recommendation</span>
@@ -321,7 +321,7 @@ const ApplicationDetailsDialog = ({
 
           {/* Contact Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="border border-gray-200 rounded-lg p-6">
+            <div className="border border-gray-200 rounded-lg p-6" id="tour-dialog-contact">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <Mail className="w-5 h-5 mr-2 text-green-600" />
                 Contact Information
@@ -352,7 +352,7 @@ const ApplicationDetailsDialog = ({
             </div>
 
             {/* Professional Information */}
-            <div className="border border-gray-200 rounded-lg p-6">
+            <div className="border border-gray-200 rounded-lg p-6" id="tour-dialog-professional">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <Briefcase className="w-5 h-5 mr-2 text-purple-600" />
                 Professional Information
@@ -394,7 +394,7 @@ const ApplicationDetailsDialog = ({
 
           {/* Skills */}
           {application.skills && (
-            <div className="border border-gray-200 rounded-lg p-6">
+            <div className="border border-gray-200 rounded-lg p-6" id="tour-dialog-skills">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Skills</h3>
               <div className="flex flex-wrap gap-2">
                 {application.skills.split(',').map((skill, index) => (
@@ -415,8 +415,8 @@ const ApplicationDetailsDialog = ({
           )}
 
           {/* Application Actions */}
-          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200" id="tour-dialog-actions">
+            <Button variant="outline" onClick={() => onOpenChange(false)} data-dialog-close>
               Close
             </Button>
             <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => { onOpenChange(false); router.push(`/content/Telent-management/Interview-management?tab=schedule&candidate=${application.id}&job=${application.job_id}`); }}>
