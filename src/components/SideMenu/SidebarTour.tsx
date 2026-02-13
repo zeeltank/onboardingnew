@@ -413,6 +413,22 @@ export class SidebarTourGuide {
                     else if (nextPageUrl.includes('/Assessment-Library') || nextPageUrl.includes('/assessment-library') || nextPageUrl.includes('Assessment-Library')) {
                         triggerValue = 'assessment-library';
                     }
+                    // 🎯 Recruitment Management trigger
+                    else if (nextPageUrl.includes('/Recruitment-management') || nextPageUrl.includes('/recruitment-management') || nextPageUrl.includes('Recruitment-Management')) {
+                        triggerValue = 'recruitment-management';
+                    }
+                    // 🎯 Manager Hub trigger
+                    else if (nextPageUrl.includes('/ManagerHub') || nextPageUrl.includes('/manager-hub') || nextPageUrl.includes('Manager-Hub')) {
+                        triggerValue = 'manager-hub';
+                    }
+                    // 🎯 Offer Management trigger
+                    else if (nextPageUrl.includes('/Offer-management') || nextPageUrl.includes('/offer-management') || nextPageUrl.includes('Offer-Management')) {
+                        triggerValue = 'offer-management';
+                    }
+                    // 🎯 Candidate Portal trigger
+                    else if (nextPageUrl.includes('/JobPortal') || nextPageUrl.includes('/job-portal') || nextPageUrl.includes('Job-Portal')) {
+                        triggerValue = 'candidate-portal';
+                    }
 
 
                     // Set flag to trigger page tour on destination page using sessionStorage
@@ -511,6 +527,22 @@ export class SidebarTourGuide {
                 // 📝 Assessment Library trigger
                 else if (url.includes('/Assessment-Library') || url.includes('/assessment-library') || url.includes('Assessment-Library')) {
                     triggerValue = 'assessment-library';
+                }
+                // 🎯 Recruitment Management trigger
+                else if (url.includes('/Recruitment-management') || url.includes('/recruitment-management') || url.includes('Recruitment-Management')) {
+                    triggerValue = 'recruitment-management';
+                }
+                // 🎯 Manager Hub trigger
+                else if (url.includes('/ManagerHub') || url.includes('/manager-hub') || url.includes('Manager-Hub')) {
+                    triggerValue = 'manager-hub';
+                }
+                // 🎯 Offer Management trigger
+                else if (url.includes('/Offer-management') || url.includes('/offer-management') || url.includes('Offer-Management')) {
+                    triggerValue = 'offer-management';
+                }
+                // 🎯 Candidate Portal trigger
+                else if (url.includes('/JobPortal') || url.includes('/job-portal') || url.includes('Job-Portal')) {
+                    triggerValue = 'candidate-portal';
                 }
 
                 // Set flag to trigger page tour on destination page using sessionStorage
