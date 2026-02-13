@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import Shepherd, { Tour, PopperPlacement } from 'shepherd.js';
+import Shepherd, { Tour } from 'shepherd.js';
 import 'shepherd.js/dist/css/shepherd.css';
 import { MetricCard } from "./MetricCard";
 import Icon from "@/components/AppIcon"
@@ -282,7 +282,7 @@ export function Dashboard() {
         text: string;
         attachTo: {
           element: string;
-          on: PopperPlacement;
+          on: string;
         };
         buttons: {
           text: string;
@@ -294,7 +294,7 @@ export function Dashboard() {
       const steps: TourStep[] = [
         {
           id: 'welcome',
-          title: '👋 Welcome to Organization Dashboard!',
+          title: 'Welcome to Organization Dashboard!',
           text: 'This tour will guide you through all the key features and elements of your organization dashboard. Click "Next" to begin.',
           attachTo: {
             element: '#tour-header',
@@ -310,14 +310,14 @@ export function Dashboard() {
               classes: 'shepherd-button-secondary'
             },
             {
-              text: 'Next →',
+              text: 'Next',
               action: () => tour.next()
             }
           ]
         },
         {
           id: 'header-org',
-          title: '🏢 Organization Name',
+          title: ' Organization Name',
           text: 'This displays your organization\'s legal name. Click the edit button to modify organization details.',
           attachTo: {
             element: '#tour-header-org',
@@ -325,18 +325,18 @@ export function Dashboard() {
           },
           buttons: [
             {
-              text: '← Previous',
+              text: 'Previous',
               action: () => tour.back()
             },
             {
-              text: 'Next →',
+              text: 'Next ',
               action: () => tour.next()
             }
           ]
         },
         {
           id: 'edit-org-btn',
-          title: '✏️ Edit Organization',
+          title: ' Edit Organization',
           text: 'Click this button to open the organization information form where you can update all organization details.',
           attachTo: {
             element: '#tour-edit-org-btn',
@@ -344,18 +344,18 @@ export function Dashboard() {
           },
           buttons: [
             {
-              text: '← Previous',
+              text: 'Previous',
               action: () => tour.back()
             },
             {
-              text: 'Next →',
+              text: 'Next',
               action: () => tour.next()
             }
           ]
         },
         {
           id: 'metric-employees',
-          title: '👥 Total Employees',
+          title: 'Total Employees',
           text: 'This card shows the total number of active employees in your organization. Click the eye icon to view user management.',
           attachTo: {
             element: '#tour-metric-employees',
@@ -363,18 +363,18 @@ export function Dashboard() {
           },
           buttons: [
             {
-              text: '← Previous',
+              text: 'Previous',
               action: () => tour.back()
             },
             {
-              text: 'Next →',
+              text: 'Next ',
               action: () => tour.next()
             }
           ]
         },
         {
           id: 'metric-departments',
-          title: '🏢 Total Departments',
+          title: 'Total Departments',
           text: 'This displays the total number of departments in your organization. Click the eye icon to view department structure.',
           attachTo: {
             element: '#tour-metric-departments',
@@ -382,18 +382,18 @@ export function Dashboard() {
           },
           buttons: [
             {
-              text: '← Previous',
+              text: 'Previous',
               action: () => tour.back()
             },
             {
-              text: 'Next →',
+              text: 'Next ',
               action: () => tour.next()
             }
           ]
         },
         {
           id: 'metric-compliance',
-          title: '🛡️ Compliance',
+          title: 'Compliance',
           text: 'This shows the number of compliance items awaiting management approval. Monitor this to ensure regulatory compliance.',
           attachTo: {
             element: '#tour-metric-compliance',
@@ -401,18 +401,18 @@ export function Dashboard() {
           },
           buttons: [
             {
-              text: '← Previous',
+              text: 'Previous',
               action: () => tour.back()
             },
             {
-              text: 'Next →',
+              text: 'Next',
               action: () => tour.next()
             }
           ]
         },
         {
           id: 'metric-disciplinary',
-          title: '📋 Disciplinary',
+          title: 'Disciplinary',
           text: 'This displays the count of active disciplinary actions in the organization. Track and manage employee conduct here.',
           attachTo: {
             element: '#tour-metric-disciplinary',
@@ -420,18 +420,18 @@ export function Dashboard() {
           },
           buttons: [
             {
-              text: '← Previous',
+              text: 'Previous',
               action: () => tour.back()
             },
             {
-              text: 'Next →',
+              text: 'Next',
               action: () => tour.next()
             }
           ]
         },
         {
           id: 'org-tree',
-          title: '🌳 Organization Tree',
+          title: 'Organization Tree',
           text: 'This section displays the hierarchical structure of your organization. View departments and their relationships here.',
           attachTo: {
             element: '#tour-org-tree',
@@ -439,18 +439,18 @@ export function Dashboard() {
           },
           buttons: [
             {
-              text: '← Previous',
+              text: 'Previous',
               action: () => tour.back()
             },
             {
-              text: 'Next →',
+              text: 'Next',
               action: () => tour.next()
             }
           ]
         },
         {
           id: 'recent-activity',
-          title: '📊 Recent Activity',
+          title: ' Recent Activity',
           text: 'This panel shows recent compliance activities and updates. Stay informed about the latest organizational changes.',
           attachTo: {
             element: '#tour-recent-activity',
@@ -458,18 +458,18 @@ export function Dashboard() {
           },
           buttons: [
             {
-              text: '← Previous',
+              text: 'Previous',
               action: () => tour.back()
             },
             {
-              text: 'Next →',
+              text: 'Next ',
               action: () => tour.next()
             }
           ]
         },
         {
           id: 'quick-actions',
-          title: '⚡ Quick Actions',
+          title: 'Quick Actions',
           text: 'Access frequently used features quickly. Manage organization, departments, users, and view analytics from here.',
           attachTo: {
             element: '#tour-quick-actions',
@@ -477,18 +477,18 @@ export function Dashboard() {
           },
           buttons: [
             {
-              text: '← Previous',
+              text: 'Previous',
               action: () => tour.back()
             },
             {
-              text: 'Next →',
+              text: 'Next',
               action: () => tour.next()
             }
           ]
         },
         {
           id: 'btn-manage-org',
-          title: '🏢 Manage Organization',
+          title: ' Manage Organization',
           text: 'Navigate to the organization management section to update organization details, policies, and settings.',
           attachTo: {
             element: '#tour-btn-manage-org',
@@ -496,18 +496,18 @@ export function Dashboard() {
           },
           buttons: [
             {
-              text: '← Previous',
+              text: 'Previous',
               action: () => tour.back()
             },
             {
-              text: 'Next →',
+              text: 'Next',
               action: () => tour.next()
             }
           ]
         },
         {
           id: 'btn-manage-dept',
-          title: '🏢 Manage Departments',
+          title: ' Manage Departments',
           text: 'Access the department management section to add, edit, or remove departments and their structures.',
           attachTo: {
             element: '#tour-btn-manage-dept',
@@ -515,18 +515,18 @@ export function Dashboard() {
           },
           buttons: [
             {
-              text: '← Previous',
+              text: 'Previous',
               action: () => tour.back()
             },
             {
-              text: 'Next →',
+              text: 'Next',
               action: () => tour.next()
             }
           ]
         },
         {
           id: 'btn-manage-users',
-          title: '👥 Manage Users',
+          title: ' Manage Users',
           text: 'Go to user management to add new users, assign roles, and manage employee accounts and permissions.',
           attachTo: {
             element: '#tour-btn-manage-users',
@@ -534,18 +534,18 @@ export function Dashboard() {
           },
           buttons: [
             {
-              text: '← Previous',
+              text: 'Previous',
               action: () => tour.back()
             },
             {
-              text: 'Next →',
+              text: 'Next',
               action: () => tour.next()
             }
           ]
         },
         {
           id: 'btn-view-analytics',
-          title: '📈 View Analytics',
+          title: ' View Analytics',
           text: 'Explore detailed analytics and reports about organization performance, employee metrics, and more.',
           attachTo: {
             element: '#tour-btn-view-analytics',
@@ -553,18 +553,18 @@ export function Dashboard() {
           },
           buttons: [
             {
-              text: '← Previous',
+              text: 'Previous',
               action: () => tour.back()
             },
             {
-              text: 'Next →',
+              text: 'Next ',
               action: () => tour.next()
             }
           ]
         },
         {
           id: 'disciplinary-section',
-          title: '⚖️ Disciplinary Actions',
+          title: ' Disciplinary Actions',
           text: 'This section shows recent disciplinary actions taken against employees. Track cases, actions taken, and outcomes.',
           attachTo: {
             element: '#tour-disciplinary-section',
@@ -572,18 +572,18 @@ export function Dashboard() {
           },
           buttons: [
             {
-              text: '← Previous',
+              text: ' Previous',
               action: () => tour.back()
             },
             {
-              text: 'Next →',
+              text: 'Next ',
               action: () => tour.next()
             }
           ]
         },
         {
           id: 'disciplinary-items',
-          title: '📋 Disciplinary Items',
+          title: ' Disciplinary Items',
           text: 'Each item displays employee name, department, misconduct type, and action taken. Click to view full details.',
           attachTo: {
             element: '#tour-disciplinary-items',
@@ -591,7 +591,7 @@ export function Dashboard() {
           },
           buttons: [
             {
-              text: '← Previous',
+              text: 'Previous',
               action: () => tour.back()
             },
             {
@@ -605,7 +605,7 @@ export function Dashboard() {
         },
         {
           id: 'tour-complete',
-          title: '🎉 Tour Complete!',
+          title: 'Tour Complete!',
           text: 'Congratulations! You now know how to navigate and use all features of your organization dashboard. Click "Finish" to start exploring!',
           attachTo: {
             element: '#tour-header',
@@ -613,7 +613,7 @@ export function Dashboard() {
           },
           buttons: [
             {
-              text: '← Previous',
+              text: 'Previous',
               action: () => tour.back()
             },
             {
@@ -994,7 +994,7 @@ export function Dashboard() {
 
           {/* Tour Restart Button */}
           <div className="fixed bottom-4 right-4 z-50">
-            <Button
+            {/* <Button
               variant="outline"
               onClick={restartTour}
               className="flex items-center gap-2 shadow-lg"
@@ -1002,7 +1002,7 @@ export function Dashboard() {
             >
               <Icon name="RefreshCw" size={16} />
               Restart Tour
-            </Button>
+            </Button> */}
           </div>
         </main>
       </div>

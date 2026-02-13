@@ -598,7 +598,7 @@ export class SidebarTourGuide {
         // Header step
         steps.push({
             id: '',
-            title: '📍 Main Header',
+            title: ' Main Header',
             text: 'This is your main header showing your welcome message and search functionality. Use the search bar to quickly find employees.',
             attachTo: {
                 element: '',
@@ -657,7 +657,7 @@ export class SidebarTourGuide {
 
             steps.push({
                 id: 'organization-management-section',
-                title: '🏢 Organization Management',
+                title: ' Organization Management',
                 text: 'This is the Organization Management section. Click on it to expand and see the available options.',
                 attachTo: {
                     element: `#tour-section-${orgManagementSection.key}`,
@@ -693,7 +693,7 @@ export class SidebarTourGuide {
         if (orgManagementSection && orgDetailSubItem) {
             steps.push({
                 id: 'organization-detail-submenu',
-                title: '📋 Organization Detail',
+                title: ' Organization Detail',
                 text: 'This is the Organization Detail submenu. Click on it to view organization details and manage settings.',
                 attachTo: {
                     element: `#tour-sub-${orgDetailSubItem.key}`,
@@ -798,7 +798,7 @@ export class SidebarTourGuide {
                     const pageUrl = subItem.access_link ? (subItem.access_link.startsWith('/') ? subItem.access_link : `/${subItem.access_link}`) : undefined;
                     steps.push({
                         id: `sub-${subItem.key}`,
-                        title: `🔸 ${subItem.label}`,
+                        title: ` ${subItem.label}`,
                         text: `${subItem.label} ${hasSubSubItems ? 'has additional sub-options' : 'takes you to a dedicated page'}. ${this.getSubItemDescription(subItem)}`,
                         level: 2, // 👈 Level 2 - NO Detail Tour button
                         attachTo: {
@@ -1183,10 +1183,27 @@ export const tourStyles = `
         --shepherd-theme-secondary: #6c757d;
     }
 
+    .shepherd-theme-custom .shepherd-element {
+        box-shadow: 0 8px 32px rgba(0, 123, 229, 0.3);
+        border-radius: 12px;
+        max-width: 640px !important;
+        min-width: 280px !important;
+    }
+
+    .shepherd-theme-custom .shepherd-content {
+        border-radius: 12px 12px 0 0;
+    }
+
     .shepherd-theme-custom .shepherd-header {
         background: #007BE5;
         color: white;
-        border-radius: 4px 4px 0 0;
+        border-radius: 12px 12px 0 0;
+        padding: 0.75rem 1rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
     }
 
     .shepherd-theme-custom .shepherd-title {
@@ -1194,6 +1211,9 @@ export const tourStyles = `
         font-weight: 600;
         margin: 0;
         color: white;
+        padding: 0;
+        line-height: 1.3;
+        flex: 1;
     }
 
     .shepherd-theme-custom .shepherd-text {
@@ -1201,6 +1221,12 @@ export const tourStyles = `
         line-height: 1.5;
         color: #171717;
         padding: 16px;
+        margin: 0;
+    }
+
+    .shepherd-theme-custom .shepherd-text p {
+        margin: 0;
+        padding: 0;
     }
 
     .shepherd-theme-custom .shepherd-button {
@@ -1210,6 +1236,7 @@ export const tourStyles = `
         padding: 8px 16px;
         font-weight: 500;
         transition: all 0.2s ease;
+        white-space: nowrap !important;
     }
 
     .shepherd-theme-custom .shepherd-button:hover {
@@ -1228,16 +1255,67 @@ export const tourStyles = `
     .shepherd-theme-custom .shepherd-cancel-icon {
         color: white;
         font-size: 20px;
+        margin-left: auto;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .shepherd-theme-custom .shepherd-cancel-icon:hover {
+        opacity: 0.8;
     }
 
     .shepherd-has-title .shepherd-content .shepherd-header {
         background: #546ee5;
-        padding: 1em;
+        padding: 0.75rem 1rem;
     }
 
-    .shepherd-theme-custom .shepherd-element {
-        box-shadow: 0 8px 32px rgba(0, 123, 229, 0.3);
-        border-radius: 12px;
+    /* Ensure header has proper layout for title and cancel icon */
+    .shepherd-has-title .shepherd-header .shepherd-title,
+    .shepherd-has-title .shepherd-header .shepherd-cancel-icon {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 767px) {
+        .shepherd-theme-custom .shepherd-element {
+            max-width: 90vw !important;
+            min-width: 260px !important;
+            border-radius: 12px 12px 0 0 !important;
+            bottom: 0 !important;
+            top: auto !important;
+            position: fixed !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: auto !important;
+            margin: 0 !important;
+            transform: none !important;
+        }
+        .shepherd-theme-custom .shepherd-content {
+            border-radius: 12px 12px 0 0 !important;
+            max-height: 70vh !important;
+            overflow-y: auto !important;
+        }
+        .shepherd-theme-custom .shepherd-header {
+            padding: 0.75rem !important;
+            border-radius: 12px 12px 0 0 !important;
+        }
+        .shepherd-theme-custom .shepherd-title {
+            font-size: 16px;
+        }
+        .shepherd-theme-custom .shepherd-footer {
+            padding: 0.75rem 1rem 1rem;
+            gap: 0.5rem;
+            flex-shrink: 0 !important;
+        }
+        .shepherd-theme-custom .shepherd-button {
+            padding: 8px 16px;
+            font-size: 14px;
+            flex: 1 !important;
+        }
+        .shepherd-theme-custom .shepherd-text {
+            font-size: 14px;
+        }
     }
 
     @keyframes pulse {
