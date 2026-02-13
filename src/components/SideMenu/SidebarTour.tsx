@@ -429,6 +429,10 @@ export class SidebarTourGuide {
                     else if (nextPageUrl.includes('/JobPortal') || nextPageUrl.includes('/job-portal') || nextPageUrl.includes('Job-Portal')) {
                         triggerValue = 'candidate-portal';
                     }
+                    // 🎯 Interview Management trigger
+                    else if (nextPageUrl.includes('/Telent-management') || nextPageUrl.includes('/Talent-management') || nextPageUrl.includes('/interview-management') || nextPageUrl.includes('/Interview-Management')) {
+                        triggerValue = 'interview-management';
+                    }
 
 
                     // Set flag to trigger page tour on destination page using sessionStorage
@@ -543,6 +547,10 @@ export class SidebarTourGuide {
                 // 🎯 Candidate Portal trigger
                 else if (url.includes('/JobPortal') || url.includes('/job-portal') || url.includes('Job-Portal')) {
                     triggerValue = 'candidate-portal';
+                }
+                // 🎯 Interview Management trigger
+                else if (url.includes('/Telent-management') || url.includes('/Talent-management') || url.includes('/interview-management') || url.includes('/Interview-Management')) {
+                    triggerValue = 'interview-management';
                 }
 
                 // Set flag to trigger page tour on destination page using sessionStorage
