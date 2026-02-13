@@ -574,11 +574,11 @@ export class SidebarTourGuide {
 
         // Welcome step
         steps.push({
-            id: 'welcome',
+            id: '',
             title: 'Welcome to Your Dashboard!',
             text: 'Let\'s take a quick tour to help you navigate through all the amazing features available to you.',
             attachTo: {
-                element: '#tour-header',
+                element: '',
                 on: 'bottom'
             },
             buttons: [
@@ -597,11 +597,11 @@ export class SidebarTourGuide {
 
         // Header step
         steps.push({
-            id: 'header',
+            id: '',
             title: '📍 Main Header',
             text: 'This is your main header showing your welcome message and search functionality. Use the search bar to quickly find employees.',
             attachTo: {
-                element: '#tour-header',
+                element: '',
                 on: 'bottom'
             },
             buttons: [
