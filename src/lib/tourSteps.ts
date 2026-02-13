@@ -1,7 +1,31 @@
-import type { StepOptions } from 'shepherd.js';
 import "shepherd.js/dist/css/shepherd.css";
 
-export interface TourStep extends Omit<StepOptions, 'buttons'> {}
+// Define TourStep interface to match the actual usage in this file
+interface AttachTo {
+  element: string;
+  on: 'top' | 'bottom' | 'left' | 'right';
+  offset?: { bottom?: number; top?: number; left?: number; right?: number };
+}
+
+interface When {
+  show?: () => void;
+  hide?: () => void;
+}
+
+export interface TourStep {
+  id?: string;
+  title?: string;
+  text?: string;
+  attachTo?: AttachTo;
+  when?: When;
+  classes?: string;
+  buttons?: Array<{
+    text?: string;
+    action?: () => void;
+    classes?: string;
+  }>;
+  beforeShowPromise?: () => Promise<void>;
+}
 
 const stepIcons = [
   '🚀', // Skill Library
@@ -12,6 +36,17 @@ const stepIcons = [
   '😊', // Attitude
   '🎯', // Behaviour
 ];
+
+const tabDescriptions: Record<string, string> = {
+  "Skill": "Manage and explore organization skills",
+  "Jobrole": "Organize and define job roles",
+  "Jobrole Task": "View and manage job role tasks",
+  "Invisible": "Access invisible competencies",
+  "Knowledge": "Create and maintain knowledge assets",
+  "Ability": "Define important abilities",
+  "Attitude": "Manage traits and attitudes",
+  "Behaviour": "Track and grow behaviors",
+};
 
 const descriptions: Record<string, { emoji: string; main: string; sub: string }> = {
   "Skill": {
@@ -63,6 +98,7 @@ export const generateTourSteps = (tabs: string[]): TourStep[] => {
   return tourTabs.map((tab, index) => {
     const icon = stepIcons[index % stepIcons.length];
     const desc = descriptions[tab] || { emoji: "📖", main: `Explore the ${tab} section.`, sub: "Discover features and capabilities." };
+    const tabDesc = tabDescriptions[tab] || "";
 
     const totalSteps = tourTabs.length;
     const stepperHtml = `
@@ -83,11 +119,37 @@ export const generateTourSteps = (tabs: string[]): TourStep[] => {
     return {
       id: tab.replace(/\s+/g, '-').toLowerCase(),
       title: `<h3 class="text-lg font-bold text-white px-4 py-2">${tab}</h3>`,
-      text: `<div class="space-y-2">
-        <p class="text-gray-700 text-sm leading-relaxed"><strong>${desc.main.split(' ').slice(0, 2).join(' ')}</strong> ${desc.main.split(' ').slice(2).join(' ')}</p>
-        <p class="text-xs text-gray-500">${desc.sub}</p>
-        <button class="detail-onboarding-btn" onclick="if(window.detailOnboardingHandler) window.detailOnboardingHandler('${tab}')">${tab} Details onboarding</button>
-      </div>${stepperHtml}`,
+      text: `
+<div class="space-y-2">
+  <p class="text-gray-700 text-sm leading-relaxed">
+    <strong>${desc.main.split(' ').slice(0, 2).join(' ')}</strong>
+    ${desc.main.split(' ').slice(2).join(' ')}
+  </p>
+  <p class="text-xs text-gray-500">${desc.sub}</p>
+
+  <button class="detail-onboarding-btn"
+    onclick="if(window.detailOnboardingHandler) window.detailOnboardingHandler('${tab}')">
+    ${tab} Details onboarding
+  </button>
+</div>
+
+${stepperHtml}
+
+<div class="tour-radio-container" style="margin-bottom:4px">
+  ${tourTabs.map((t, i) => `
+    <label style="display:flex;align-items:center;gap:6px;margin:2px 0;cursor:pointer;font-size:11px">
+      <input 
+        type="radio" 
+        name="tourTabSelector"
+        value="${t}"
+        ${t === tab ? "checked" : ""}
+        onchange="handleTourTabChange('${t}')"
+      />
+      <span><strong>${t}:</strong> ${tabDescriptions[t] || ''}</span>
+    </label>
+  `).join("")}
+</div>
+`,
       attachTo: { element: `#tab-${tab.replace(/\s+/g, '-').toLowerCase()}`, on: "top", offset: { bottom: 40 } },
       when: {
         show: () => {
@@ -221,7 +283,7 @@ export const generateDetailTourSteps = (tab: string): TourStep[] => {
       {
         id: 'filter-button',
         title: 'Filter Options',
-        text: 'Refine your task view by department, job role, and critical work function. Click to explore filtering options.',
+        text: 'Refine your task view by department, job role, and critical work function. Click the funnel icon to explore filtering options.',
         attachTo: { element: 'button[class*="hover:rounded-md hover:bg-gray-100"]', on: 'bottom' },
       },
       {
@@ -430,4 +492,3 @@ export const generateDetailTourSteps = (tab: string): TourStep[] => {
 
   return [];
 };
-
