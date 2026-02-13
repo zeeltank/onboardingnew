@@ -109,9 +109,42 @@ const OrganizationProfileTour = ({ onComplete, onSwitchTab }) => {
     const tour = new Shepherd.Tour({
       useModalOverlay: true,
       defaultStepOptions: {
-        cancelIcon: { enabled: true },
+        cancelIcon: {
+          enabled: true,
+          options: {
+            label: '✕'
+          }
+        },
         scrollTo: { behavior: "smooth", block: "center" },
         classes: "shepherd-theme-arrows",
+        popperOptions: {
+          strategy: 'fixed',
+          modifiers: {
+            preventOverflow: {
+              boundariesElement: 'viewport',
+              padding: 16,
+              altAxis: true,
+              altBoundary: true
+            },
+            flip: {
+              behavior: ['top', 'bottom', 'left', 'right', 'top-start', 'top-end', 'bottom-start', 'bottom-end', 'left-start', 'left-end', 'right-start', 'right-end'],
+              boundariesElement: 'viewport',
+              fallbackPlacements: ['top', 'bottom']
+            },
+            offset: {
+              enabled: true,
+              offsets: [0, 12]
+            },
+            applyClass: {
+              enabled: true,
+              fn: function (data) {
+                // Add responsive class based on placement
+                const placement = data.state?.options?.placement || 'bottom';
+                data.popper.classList.add(`shepherd-popper-${placement}`);
+              }
+            }
+          }
+        }
       },
     });
 
@@ -123,14 +156,24 @@ const OrganizationProfileTour = ({ onComplete, onSwitchTab }) => {
       .shepherd-element {
         border-radius: 0.875rem !important;
         max-width: 400px !important;
+        min-width: 280px !important;
+        width: auto !important;
+        overflow: hidden !important;
       }
       .shepherd-content {
         border-radius: 0.875rem 0.875rem 0 0 !important;
+        overflow: hidden !important;
       }
       .shepherd-header {
         background: linear-gradient(90deg, #3b82f6, #2563eb) !important;
-        padding: 1rem !important;
+        padding: 0.75rem 1rem !important;
         border-radius: 0.875rem 0.875rem 0 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        flex-shrink: 0 !important;
+        min-height: 48px !important;
+        gap: 0.5rem !important;
       }
       .shepherd-arrow {
         z-index: 999;
@@ -148,6 +191,7 @@ const OrganizationProfileTour = ({ onComplete, onSwitchTab }) => {
         display: flex;
         gap: 0.625rem;
         justify-content: space-between;
+        flex-shrink: 0 !important;
       }
       .shepherd-button {
         border-radius: 999px !important;
@@ -155,6 +199,7 @@ const OrganizationProfileTour = ({ onComplete, onSwitchTab }) => {
         font-weight: 500;
         font-size: 0.875rem;
         transition: all 0.25s ease;
+        white-space: nowrap !important;
       }
       .shepherd-skip {
         background: transparent !important;
@@ -185,11 +230,64 @@ const OrganizationProfileTour = ({ onComplete, onSwitchTab }) => {
         font-size: 1.125rem !important;
         font-weight: 600 !important;
         color: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 1.3 !important;
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       .shepherd-text {
         font-size: 0.875rem !important;
         line-height: 1.5 !important;
         color: #374151 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden;
+      }
+      .shepherd-text p {
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      .shepherd-cancel-icon {
+        color: white !important;
+        font-size: 20px !important;
+        margin-left: auto !important;
+        cursor: pointer !important;
+        flex-shrink: 0 !important;
+        padding: 4px !important;
+        line-height: 1 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
+      .shepherd-cancel-icon:hover {
+        opacity: 0.8 !important;
+      }
+
+      /* Ensure header has proper layout for title and cancel icon */
+      .shepherd-has-title .shepherd-header {
+        display: flex !important;
+        flex-direction: row !important;
+      }
+      .shepherd-has-title .shepherd-header .shepherd-title {
+        display: inline-block !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+      }
+      .shepherd-has-title .shepherd-header .shepherd-cancel-icon {
+        display: inline-flex !important;
+        flex: 0 0 auto !important;
+      }
+
+      /* Ensure text content area has proper padding */
+      .shepherd-text {
+        padding: 1rem !important;
       }
       
       /* Highlight element during tour */
@@ -203,36 +301,60 @@ const OrganizationProfileTour = ({ onComplete, onSwitchTab }) => {
       @media (max-width: 767px) {
         .shepherd-element {
           max-width: 90vw !important;
+          min-width: 260px !important;
+          border-radius: 12px 12px 0 0 !important;
+          bottom: 0 !important;
+          top: auto !important;
+          position: fixed !important;
+          left: 0 !important;
+          right: 0 !important;
+          width: auto !important;
+          margin: 0 !important;
+          transform: none !important;
         }
         .shepherd-content {
-          border-radius: 0.5rem 0.5rem 0 0 !important;
+          border-radius: 12px 12px 0 0 !important;
+          max-height: 70vh !important;
+          overflow-y: auto !important;
         }
         .shepherd-header {
           padding: 0.75rem !important;
-          border-radius: 0.5rem 0.5rem 0 0 !important;
+          border-radius: 12px 12px 0 0 !important;
+        }
+        .shepherd-title {
+          font-size: 1rem !important;
         }
         .shepherd-footer {
           padding: 0.75rem 1rem 1rem;
           gap: 0.5rem;
         }
         .shepherd-button {
-          padding: 0.375rem 0.875rem !important;
-          font-size: 0.75rem;
+          padding: 0.5rem 1rem !important;
+          font-size: 0.875rem;
+          flex: 1 !important;
+        }
+        .shepherd-text {
+          font-size: 0.875rem !important;
         }
       }
 
       @media (max-width: 480px) {
         .shepherd-header {
-          padding: 0.5rem !important;
+          padding: 0.5rem 0.75rem !important;
         }
         .shepherd-footer {
           padding: 0.5rem 0.75rem 0.75rem;
-          flex-direction: column;
-          gap: 0.375rem;
+          gap: 0.5rem;
         }
         .shepherd-button {
-          padding: 0.25rem 0.75rem !important;
-          font-size: 0.6875rem;
+          padding: 0.5rem 0.75rem !important;
+          font-size: 0.75rem !important;
+        }
+        .shepherd-title {
+          font-size: 0.95rem !important;
+        }
+        .shepherd-text {
+          font-size: 0.8rem !important;
         }
       }
     `;
