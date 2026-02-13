@@ -216,18 +216,18 @@ const createOffersTabSteps = (): ManagerHubTourStep[] => [
             {
                 text: 'Next',
                 action: () => {
-                    managerHubTourInstance?.show('offers-list');
+                    managerHubTourInstance?.show('offers-kpi-cards');
                 }
             }
         ]
     },
     {
-        id: 'offers-list',
-        title: '📋 Offer List',
-        text: 'View all job offers here. Each offer shows the candidate name, position, salary details, and current status.',
+        id: 'offers-kpi-cards',
+        title: '📊 KPI Cards',
+        text: 'These KPI cards show the count of total offers and their status breakdown. Track how many offers are in each stage.',
         attachTo: {
-            element: '#tour-offers-tab-content',
-            on: 'top'
+            element: '#tour-offer-stats',
+            on: 'bottom'
         },
         beforeShowPromise: async () => {
             // Ensure we're on offers tab
@@ -244,6 +244,34 @@ const createOffersTabSteps = (): ManagerHubTourStep[] => [
             {
                 text: 'Next',
                 action: () => {
+                    managerHubTourInstance?.show('offers-offer-cards');
+                }
+            }
+        ]
+    },
+    {
+        id: 'offers-offer-cards',
+        title: '📋 Offer Cards',
+        text: 'Each offer card shows the candidate name, position, salary, and current status. You can view details, download offer letters, or take actions.',
+        attachTo: {
+            element: '#tour-first-offer-card',
+            on: 'top'
+        },
+        beforeShowPromise: async () => {
+            // Ensure we're on offers tab
+            switchManagerHubTab('offers');
+        },
+        buttons: [
+            {
+                text: 'Back',
+                action: () => {
+                    managerHubTourInstance?.show('offers-kpi-cards');
+                },
+                classes: 'shepherd-button-secondary'
+            },
+            {
+                text: 'Next',
+                action: () => {
                     managerHubTourInstance?.show('offers-status');
                 }
             }
@@ -254,21 +282,31 @@ const createOffersTabSteps = (): ManagerHubTourStep[] => [
         title: '🏷️ Offer Status Tracking',
         text: 'Track the status of each offer through the hiring pipeline. Filter by status to find offers that need your attention.',
         attachTo: {
-            element: '#tour-offers-tab-content',
-            on: 'left'
+            element: '#tour-offer-tabs',
+            on: 'top'
+        },
+        beforeShowPromise: async () => {
+            // Ensure we're on offers tab
+            switchManagerHubTab('offers');
         },
         buttons: [
             {
                 text: 'Back',
                 action: () => {
-                    managerHubTourInstance?.show('offers-list');
+                    managerHubTourInstance?.show('offers-offer-cards');
                 },
                 classes: 'shepherd-button-secondary'
             },
             {
                 text: 'Finish Tour',
                 action: () => {
-                    managerHubTourInstance?.complete();
+                    // Mark offers tab tour as completed and start team overview tour
+                    if (typeof window !== 'undefined') {
+                        sessionStorage.setItem('offersTabTourCompleted', 'true');
+                    }
+                    // Start team overview tour
+                    managerHubTourInstance?.cancel();
+                    startTabTourWithCallback('team');
                 }
             }
         ]
@@ -617,6 +655,87 @@ const createTourSteps = (): ManagerHubTourStep[] => {
                 {
                     text: 'Next',
                     action: () => {
+                        managerHubTourInstance?.show('offers-kpi-cards');
+                    }
+                }
+            ]
+        },
+        {
+            id: 'offers-kpi-cards',
+            title: '📊 KPI Cards',
+            text: 'These KPI cards show the count of total offers and their status breakdown. Track how many offers are in each stage.',
+            attachTo: {
+                element: '#tour-offer-stats',
+                on: 'bottom'
+            },
+            beforeShowPromise: async () => {
+                switchManagerHubTab('offers');
+            },
+            buttons: [
+                {
+                    text: 'Back',
+                    action: () => {
+                        managerHubTourInstance?.show('offers-tab');
+                    },
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Next',
+                    action: () => {
+                        managerHubTourInstance?.show('offers-offer-cards');
+                    }
+                }
+            ]
+        },
+        {
+            id: 'offers-offer-cards',
+            title: '📋 Offer Cards',
+            text: 'Each offer card shows the candidate name, position, salary, and current status. You can view details, download offer letters, or take actions.',
+            attachTo: {
+                element: '#tour-first-offer-card',
+                on: 'top'
+            },
+            beforeShowPromise: async () => {
+                switchManagerHubTab('offers');
+            },
+            buttons: [
+                {
+                    text: 'Back',
+                    action: () => {
+                        managerHubTourInstance?.show('offers-kpi-cards');
+                    },
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Next',
+                    action: () => {
+                        managerHubTourInstance?.show('offers-status-tracking');
+                    }
+                }
+            ]
+        },
+        {
+            id: 'offers-status-tracking',
+            title: '🏷️ Offer Status Tracking',
+            text: 'Track the status of each offer through the hiring pipeline. Filter by status (All, Sent, Accepted, Rejected) to find offers that need your attention.',
+            attachTo: {
+                element: '#tour-offer-tabs',
+                on: 'top'
+            },
+            beforeShowPromise: async () => {
+                switchManagerHubTab('offers');
+            },
+            buttons: [
+                {
+                    text: 'Back',
+                    action: () => {
+                        managerHubTourInstance?.show('offers-offer-cards');
+                    },
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Next',
+                    action: () => {
                         managerHubTourInstance?.show('team-tab');
                     }
                 }
@@ -637,7 +756,7 @@ const createTourSteps = (): ManagerHubTourStep[] => {
                 {
                     text: 'Back',
                     action: () => {
-                        managerHubTourInstance?.show('offers-tab');
+                        managerHubTourInstance?.show('offers-status-tracking');
                     },
                     classes: 'shepherd-button-secondary'
                 },
