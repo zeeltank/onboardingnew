@@ -23,6 +23,7 @@ interface BubbleData {
 }
 
 interface CriticalWorkFunctionCardProps {
+  id?: string;
   bubbles?: BubbleData[];
   title?: string;
   description?: string;
@@ -156,10 +157,11 @@ function packBubblesCircular(bubbles: BubbleData[]) {
 }
 
 const BubbleItem: React.FC<{
+  id?: string;
   bubble: BubbleData & { size: number };
   position: { x: number; y: number };
   index: number;
-}> = ({ bubble, position, index }) => {
+}> = ({ id, bubble, position, index }) => {
   const controls = useAnimation();
   const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true });
 
@@ -177,6 +179,7 @@ const BubbleItem: React.FC<{
 
   return (
     <motion.div
+      id={id}
       ref={ref}
       initial={{ opacity: 0, y: 20 }}
       animate={controls}
@@ -208,7 +211,8 @@ const BubbleItem: React.FC<{
   );
 };
 
-const CriticalWorkFunctionCard: React.FC<CriticalWorkFunctionCardProps> = ({
+const CriticalWorkFunctionCard: React.FC<CriticalWorkFunctionCardProps & { id?: string }> = ({
+  id,
   bubbles = [],
   title = "Critical Work Function",
   description = "Identify and drive business process improvement and innovation solutions",
@@ -217,8 +221,9 @@ const CriticalWorkFunctionCard: React.FC<CriticalWorkFunctionCardProps> = ({
   const { bubbleSizes, positions, containerSize } = packBubblesCircular(bubbles);
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-4 w-full flex flex-col items-stretch justify-between min-h-[400px]">
+    <div id={id} className="bg-white rounded-xl shadow-lg p-4 w-full flex flex-col items-stretch justify-between min-h-[400px]">
       <div
+        id={`${id}-bubbles`}
         className="bubbles-container relative mx-auto mb-4 flex-shrink-0"
         style={{
           height: `${containerSize}px`,
@@ -227,12 +232,18 @@ const CriticalWorkFunctionCard: React.FC<CriticalWorkFunctionCardProps> = ({
         }}
       >
         {bubbleSizes.map((bubble, index) => (
-          <BubbleItem key={bubble.id} bubble={bubble} position={positions[index]} index={index} />
+          <BubbleItem
+            key={bubble.id}
+            id={`${id}-bubble-${index}`}
+            bubble={bubble}
+            position={positions[index]}
+            index={index}
+          />
         ))}
       </div>
 
       <hr className="mt-auto border-gray-300" />
-      <div className="cardTitle flex items-start gap-3 mt-4">
+      <div id={`${id}-header`} className="cardTitle flex items-start gap-3 mt-4">
         <div className="flex-shrink-0">
           <img src={iconUrl} alt={title} className="w-8 h-8" />
         </div>
@@ -282,12 +293,14 @@ const CriticalWorkFunction: React.FC<UserJobroleTaskProps> = ({ userJobroleTask 
     <div className="min-h-auto py-8">
       <div className="max-w-7xl mx-auto px-4">
         <div
+          id="tasks-bubbles-grid"
           className={`grid grid-cols-1 md:grid-cols-2 ${needs2Cols ? "lg:grid-cols-2" : "lg:grid-cols-3"
             } gap-6`}
         >
           {cards.map((card, index) => (
             <CriticalWorkFunctionCard
               key={index}
+              id={`task-card-${index}`}
               title={card.title}
               description={card.description}
               bubbles={card.bubbles}

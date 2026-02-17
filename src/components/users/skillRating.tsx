@@ -913,7 +913,7 @@ const validateAndSaveAllSkills = async (): Promise<void> => {
             </button> */}
 
             {/* Top Right Icons - Moved higher with negative top margin */}
-            <div className="absolute -top-15 right-0 flex gap-5 z-10">
+            <div id="skill-rating-icons" className="absolute -top-15 right-0 flex gap-5 z-10">
               {/* Star Icon */}
               <span
                 className="mdi mdi-star-box-multiple-outline text-xl cursor-pointer p-2 bg-yellow-100 text-yellow-600 shadow hover:bg-yellow-200 hover:text-yellow-700 transition-all rounded-md"
@@ -958,7 +958,7 @@ const validateAndSaveAllSkills = async (): Promise<void> => {
             ) : (
               <div className="flex flex-col xl:flex-row gap-6 xl:gap-8">
                 {/* Left Panel */}
-                <div className="w-full xl:w-[280px] min-h-[472px] bg-white rounded-2xl border-2 border-[#D4EBFF] shadow-lg p-2">
+                <div id="skill-rating-left-panel" className="w-full xl:w-[280px] min-h-[472px] bg-white rounded-2xl border-2 border-[#D4EBFF] shadow-lg p-2">
                   <h2 className="text-[#23395B] font-bold text-md mb-3" style={{ fontFamily: "Inter, sans-serif" }}>
                     📈 Skill Proficiency Overview
                   </h2>
@@ -979,6 +979,7 @@ const validateAndSaveAllSkills = async (): Promise<void> => {
 
                       return (
                         <div
+                          id={`skill-rating-item-${index}`}
                           key={index}
                           className="relative group cursor-pointer"
                           onClick={() => {
@@ -1016,7 +1017,7 @@ const validateAndSaveAllSkills = async (): Promise<void> => {
 
                 {/* Center Panel */}
                 <div className="w-full flex-1 flex flex-col gap-6 ">
-                  <div className="w-full bg-white rounded-2xl p-4 shadow-sm border-2 border-[#D4EBFF]">
+                  <div id="skill-rating-question" className="w-full bg-white rounded-2xl p-4 shadow-sm border-2 border-[#D4EBFF]">
                     <div className="w-full flex justify-between items-center mb-4">
                       <h1 className="text-[#393939] font-bold text-xs md:text-xl" style={{ fontFamily: "Inter, sans-serif" }}>
                         Are you proficient in {selectedSkill?.skill || "this skill"}?
@@ -1068,6 +1069,7 @@ const validateAndSaveAllSkills = async (): Promise<void> => {
                           }
                           return (
                             <button
+                              id={`skill-level-${key}`}
                               key={key}
                               onClick={() => handleLevelSelect(key, val)}
                               className={`px-4 py-2 shadow-lg border-2 ${borderLeft} ${borderRight} cursor-pointer flex items-center justify-center min-w-[80px] font-medium transition-all duration-200
@@ -1123,7 +1125,7 @@ const validateAndSaveAllSkills = async (): Promise<void> => {
                   </div>
 
                   {/* Detailed Rating Section */}
-                  <div className="text-left bg-white rounded-2xl p-4 shadow-sm border-2 border-[#D4EBFF]">
+                  <div id="skill-rating-details" className="text-left bg-white rounded-2xl p-4 shadow-sm border-2 border-[#D4EBFF]">
                     <div className="flex items-center mb-4">
                       <span className="mr-2 text-gray-700 font-medium">Want to rate your skill in detail?</span>
                       <label className="relative inline-flex items-center cursor-pointer">
@@ -1163,7 +1165,7 @@ const validateAndSaveAllSkills = async (): Promise<void> => {
                     {showDetails && selectedLevelIndex !== null && (
                       <div className="mt-4">
                         {/* Tabs */}
-                        <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-full shadow-sm w-fit mb-4">
+                        <div id="skill-rating-tabs" className="flex items-center gap-2 bg-gray-50 p-2 rounded-full shadow-sm w-fit mb-4">
                           {attrArray.map((attr) => (
                             <button
                               key={attr.title}
@@ -1334,7 +1336,7 @@ const validateAndSaveAllSkills = async (): Promise<void> => {
 
       {/* Bottom-right fixed actions: Clear, Save All, etc. - Only show in default view */}
       {viewPart !== "jobrole-skillrating" && viewPart !== "rated skill" && (
-        <div className="fixed bottom-6 right-6 flex gap-3 z-50">
+        <div id="skill-rating-actions" className="fixed bottom-6 right-6 flex gap-3 z-50">
           <button
             onClick={clearRatedSkills}
             className="px-4 py-2 rounded-full bg-red-500 text-white shadow hover:bg-red-600"

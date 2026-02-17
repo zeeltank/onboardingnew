@@ -386,7 +386,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       ) : (
         <form onSubmit={handleSubmit}>
           {/* Header Section */}
-          <div className="header-ajit mb-8">
+            <div className="header-ajit mb-8" id="pd-header">
             <div className="header-section">
               <div className="h-full bg-[url('/Header.png')] bg-contain bg-no-repeat">
                 <div className="rounded-lg">
@@ -440,10 +440,11 @@ const handleSubmit = async (e: React.FormEvent) => {
           {/* Main Content */}
           <div className="flex mt-14">
             {/* Sidebar Menu */}
-            <div className="sidebar-menu">
+              <div className="sidebar-menu" id="pd-sidebar">
               {tabs.map((item) => (
                 <div
                   key={item.id}
+                  id={`pd-tab-${item.id}`}
                   className={`cursor-pointer transition-colors duration-200 px-3 py-2 border-b-1 border-[1px solid rgba(71, 160, 255, 0.1)] ${activeSection === item.id
                     ? "bg-[#47a0ff]"
                     : "bg-white text-gray-600 hover:bg-blue-100"
@@ -490,10 +491,10 @@ const handleSubmit = async (e: React.FormEvent) => {
                 <div className="title-underline"></div>
 
                 {activeSection === "personal" && (
-                  <div className="form-grid">
+                    <div className="form-grid" id="pd-section-personal">
                     {/* Name Section */}
                     <div className="form-row">
-                      <div className="input-field">
+                        <div className="input-field" id="field-suffix">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Suffix
                         </label>
@@ -516,7 +517,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                           ))}
                         </select>
                       </div>
-                      <div className="input-field">
+                        <div className="input-field" id="field-firstname">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           First Name
                         </label>
@@ -536,7 +537,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                     </div>
 
                     <div className="form-row">
-                      <div className="input-field">
+                        <div className="input-field" id="field-middlename">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Middle Name
                         </label>
@@ -553,7 +554,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                           }
                         />
                       </div>
-                      <div className="input-field">
+                        <div className="input-field" id="field-lastname">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Last Name
                         </label>
@@ -574,7 +575,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
                     {/* Contact Section */}
                     <div className="form-row">
-                      <div className="input-field">
+                        <div className="input-field" id="field-email">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Email
                         </label>
@@ -591,7 +592,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                           }
                         />
                       </div>
-                      <div className="input-field relative">
+                        <div className="input-field relative" id="field-password">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Password
                         </label>
@@ -616,7 +617,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                     </div>
 
                     <div className="form-row">
-                      <div className="input-field">
+                        <div className="input-field" id="field-birthdate">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Birthdate
                         </label>
@@ -633,7 +634,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                           }
                         />
                       </div>
-                      <div className="input-field">
+                        <div className="input-field" id="field-mobile">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Mobile
                         </label>
@@ -721,7 +722,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
                     {/* Job Section */}
                     <div className="form-row">
-                      <div className="input-field">
+                        <div className="input-field" id="field-responsibility">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Responsibility Level
                         </label>
@@ -755,7 +756,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                           )}
                         </select>
                       </div>
-                      <div className="input-field">
+                        <div className="input-field" id="field-gender">
                         <label className="block text-[#393939] text-[14px] font-normal font-inter mb-2">
                           Gender
                         </label>
@@ -792,7 +793,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                     </div>
 
                     <div className="form-row">
-                      <div className="input-field">
+                        <div className="input-field" id="field-userprofile">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           User Profile
                         </label>
@@ -828,7 +829,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                           )}
                         </select>
                       </div>
-                      <div className="input-field">
+                        <div className="input-field" id="field-joiningyear">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Joining Year
                         </label>
@@ -849,7 +850,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
                     {/* Status Section */}
                     <div className="form-row">
-                      <div className="input-field">
+                        <div className="input-field" id="field-status">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Inactive Status
                         </label>
@@ -877,7 +878,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                           </option>
                         </select>
                       </div>
-                      <div className="input-field w-full">
+                        <div className="input-field w-full" id="field-userimage">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           User Image
                         </label>
@@ -956,9 +957,9 @@ const handleSubmit = async (e: React.FormEvent) => {
                 )}
 
                 {activeSection === "address" && (
-                  <div className="form-grid">
+                    <div className="form-grid" id="pd-section-address">
                     <div className="form-row">
-                      <div className="input-field">
+                        <div className="input-field" id="field-address">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Address
                         </label>
@@ -975,7 +976,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                           }
                         />
                       </div>
-                      <div className="input-field">
+                        <div className="input-field" id="field-city">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           City
                         </label>
@@ -995,7 +996,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                     </div>
 
                     <div className="form-row">
-                      <div className="input-field">
+                        <div className="input-field" id="field-state">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           State
                         </label>
@@ -1012,7 +1013,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                           }
                         />
                       </div>
-                      <div className="input-field">
+                        <div className="input-field" id="field-pincode">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Pincode
                         </label>
@@ -1055,9 +1056,9 @@ const handleSubmit = async (e: React.FormEvent) => {
                 )}
 
                 {activeSection === "reporting" && (
-                  <div className="form-grid">
+                    <div className="form-grid" id="pd-section-reporting">
                     <div className="form-row">
-                      <div className="input-field">
+                        <div className="input-field" id="field-supervisor">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Supervisor / Subordinate
                         </label>
@@ -1089,7 +1090,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                           ))}
                         </select>
                       </div>
-                      <div className="input-field">
+                        <div className="input-field" id="field-employeename">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Employee Name
                         </label>
@@ -1128,7 +1129,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                     </div>
 
                     <div className="form-row">
-                      <div className="input-field">
+                        <div className="input-field" id="field-reportingmethod">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Reporting Method
                         </label>
@@ -1153,9 +1154,9 @@ const handleSubmit = async (e: React.FormEvent) => {
                 )}
 
                 {activeSection === "attendance" && (
-                  <div className="form-grid">
+                    <div className="form-grid" id="pd-section-attendance">
                     <div className="form-row">
-                      <div className="input-field w-full">
+                      <div className="input-field w-full" id="field-workingdays">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Working Days
                         </label>
@@ -1263,9 +1264,9 @@ const handleSubmit = async (e: React.FormEvent) => {
                 )}
 
                 {activeSection === "deposit" && (
-                  <div className="form-grid">
+                    <div className="form-grid" id="pd-section-deposit">
                     <div className="form-row">
-                      <div className="input-field">
+                      <div className="input-field" id="field-bankname">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Bank Name
                         </label>
@@ -1283,7 +1284,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                           }
                         />
                       </div>
-                      <div className="input-field">
+                      <div className="input-field" id="field branchname">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Branch Name
                         </label>
@@ -1304,7 +1305,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                     </div>
 
                     <div className="form-row">
-                      <div className="input-field">
+                      <div className="input-field" id="field-account">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Account
                         </label>
@@ -1322,7 +1323,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                           }
                         />
                       </div>
-                      <div className="input-field">
+                      <div className="input-field" id="field-ifsc">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           IFSC
                         </label>
@@ -1339,7 +1340,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                     </div>
 
                     <div className="form-row">
-                      <div className="input-field">
+                      <div className="input-field" id="field-amount">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Amount
                         </label>
@@ -1357,7 +1358,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                           }
                         />
                       </div>
-                      <div className="input-field">
+                      <div className="input-field" id="field-transfertype">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Transfer Type
                         </label>
@@ -1381,9 +1382,10 @@ const handleSubmit = async (e: React.FormEvent) => {
                   </div>
                 )}
 
-                <div className="flex justify-center mt-8">
+                  <div className="flex justify-center mt-8" id="pd-submit-section">
                   <button
                     type="submit"
+                      id="pd-submit-btn"
                     className="px-8 py-2 rounded-full text-white font-medium transition duration-300 ease-in-out bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 shadow-lg"
                   >
                     {isSubmitting ? "Updating..." : "Update"}
