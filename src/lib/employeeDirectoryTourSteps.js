@@ -112,16 +112,22 @@ export const employeeDirectoryTourSteps = [
   // Step 8: Table Actions Menu
   {
     id: 'table-actions-menu',
-    attachTo: { element: '#table-actions-menu', on: 'left' },
+    attachTo: { element: '.table-actions-menu-first', on: 'left' },
     beforeShowPromise: function() {
-      return new Promise(resolve => setTimeout(resolve, 500));
+      return new Promise(resolve => {
+        // Dispatch event to open the actions menu
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('tour:showActions', { detail: {} }));
+          resolve();
+        }, 500);
+      });
     },
     buttons: [],
     highlightClass: 'highlight',
     scrollTo: true,
     cancelIcon: { enabled: true },
     title: 'Employee Actions',
-    text: ['Click the three-dot menu on any row to access employee actions like Edit Employee and Assign Task.']
+    text: ['Click on "Edit Employee" or "Assign Task" buttons in the dropdown menu to navigate to those pages. The tour will continue on the respective page.']
   },
 
   // Step 9: Stats Sidebar - Overview

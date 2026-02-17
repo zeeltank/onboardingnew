@@ -1191,7 +1191,7 @@ export const tourStyles = `
     }
 
     .shepherd-theme-custom .shepherd-content {
-        border-radius: 12px 12px 0 0;
+        border-radius: 8px 8px 0 0;
     }
 
     .shepherd-theme-custom .shepherd-header {
@@ -1202,7 +1202,7 @@ export const tourStyles = `
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
-        white-space: nowrap !important;
+
         flex-shrink: 0 !important;
     }
 
@@ -1214,6 +1214,8 @@ export const tourStyles = `
         padding: 0;
         line-height: 1.3;
         flex: 1;
+         white-space: normal !important;
+        word-break: break-word;
     }
 
     .shepherd-theme-custom .shepherd-text {

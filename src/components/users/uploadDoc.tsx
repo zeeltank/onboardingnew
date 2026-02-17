@@ -138,12 +138,12 @@ const UploadDocumentPage: React.FC<UploadDocProps> = ({ uploadDoc, sessionData, 
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto bg-white shadow-xl rounded-xl mt-10 border border-gray-200">
+    <div className="p-6 max-w-5xl mx-auto bg-white shadow-xl rounded-xl mt-10 border border-gray-200" id="upload-doc-container">
       <h2 className="text-xl font-semibold text-gray-800 mb-6">Upload Document</h2>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-          <div className="flex flex-col">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end" id="upload-form-fields">
+          <div className="flex flex-col" id="doc-type-field">
             <label className="text-sm font-medium text-gray-700 mb-1">Document Type</label>
             <select
               value={documentType}
@@ -160,10 +160,11 @@ const UploadDocumentPage: React.FC<UploadDocProps> = ({ uploadDoc, sessionData, 
             </select>
           </div>
 
-          <div className="flex flex-col">
+          <div className="flex flex-col" id="doc-title-field">
             <label className="text-sm font-medium text-gray-700 mb-1">Document Title</label>
             <input
               type="text"
+              id="doc-title-input"
               placeholder="Enter title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -172,10 +173,10 @@ const UploadDocumentPage: React.FC<UploadDocProps> = ({ uploadDoc, sessionData, 
             />
           </div>
 
-         <div className="flex flex-col">
+         <div className="flex flex-col" id="doc-file-field">
       <label className="text-sm font-medium text-gray-700 mb-1">File</label>
 
-      <div className="relative w-full">
+      <div className="relative w-full" id="doc-file-input">
         {/* Icon inside input */}
         <Download className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-600 pointer-events-none" />
 
@@ -191,9 +192,10 @@ const UploadDocumentPage: React.FC<UploadDocProps> = ({ uploadDoc, sessionData, 
     </div>
         </div>
 
-        <div className="flex justify-center pt-2">
+        <div className="flex justify-center pt-2" id="upload-submit-section">
           <button
             type="submit"
+            id="upload-submit-btn"
             disabled={uploading}
             className="px-8 py-2 rounded-full text-white font-semibold transition duration-300 ease-in-out bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 shadow-md disabled:opacity-60"
           >
@@ -204,8 +206,8 @@ const UploadDocumentPage: React.FC<UploadDocProps> = ({ uploadDoc, sessionData, 
         {message && <p className="text-center text-sm text-gray-600">{message}</p>}
       </form>
 
-      <div className="mt-10">
-        <h3 className="text-lg font-semibold text-gray-700 mb-4">Uploaded Documents</h3>
+      <div className="mt-10" id="uploaded-docs-section">
+        <h3 className="text-lg font-semibold text-gray-700 mb-4" id="docs-table-header">Uploaded Documents</h3>
 
         {loadingDocs ? (
           <p className="text-sm text-gray-500">Loading documents...</p>

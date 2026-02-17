@@ -1,34 +1,55 @@
-
 "use client";
 
-import { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Shepherd from "shepherd.js";
 import "shepherd.js/dist/css/shepherd.css";
-import { employeeDirectoryTourSteps } from "@/lib/employeeDirectoryTourSteps";
+import { taskManagementTourSteps } from "@/lib/taskManagementTourSteps";
+import Icon from "@/components/AppIcon";
 
-interface EmployeeDirectoryTourProps {
-  onComplete?: () => void;
-}
+const TaskManagementTour = ({ onComplete, onSwitchView }) => {
+  const [isTourActive, setIsTourActive] = useState(false);
+  const tourInstanceRef = useRef(null);
 
-const EmployeeDirectoryTour: React.FC<EmployeeDirectoryTourProps> = ({ onComplete }) => {
   useEffect(() => {
-    const tourSteps = employeeDirectoryTourSteps;
+    // Check if tour has already been completed
+    const tourCompleted = localStorage.getItem("taskManagementTourCompleted");
+    if (tourCompleted) {
+      return;
+    }
+
+    // Start tour after a short delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      startTour();
+    }, 1500);
+
+    return () => {
+      clearTimeout(timer);
+      if (tourInstanceRef.current) {
+        tourInstanceRef.current.cancel();
+      }
+    };
+  }, []);
+
+  const startTour = () => {
+    setIsTourActive(true);
 
     const tour = new Shepherd.Tour({
       useModalOverlay: true,
       defaultStepOptions: {
         cancelIcon: { enabled: true },
-        scrollTo: { behavior: 'smooth', block: 'center' },
-        classes: 'shepherd-theme-arrows',
+        scrollTo: { behavior: "smooth", block: "center" },
+        classes: "shepherd-theme-arrows",
       },
     });
 
+    tourInstanceRef.current = tour;
+
     // Add CSS for custom styling
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = `
       .shepherd-element {
         border-radius: 0.875rem !important;
-        max-width: 400px;
+        max-width: 400px !important;
       }
       .shepherd-content {
         border-radius: 0.875rem 0.875rem 0 0 !important;
@@ -87,16 +108,28 @@ const EmployeeDirectoryTour: React.FC<EmployeeDirectoryTourProps> = ({ onComplet
         transform: translateY(-1px);
         box-shadow: 0 12px 30px rgba(37,99,235,0.45);
       }
-      .highlight {
-        outline: 3px solid #3b82f6 !important;
-        outline-offset: 3px !important;
+      .shepherd-title {
+        font-size: 1.125rem !important;
+        font-weight: 600 !important;
+        color: white !important;
+      }
+      .shepherd-text {
+        font-size: 0.875rem !important;
+        line-height: 1.5 !important;
+        color: #374151 !important;
       }
       
-      /* Responsive adjustments */
+      /* Highlight element during tour */
+      .highlight {
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5) !important;
+        border-radius: 0.5rem !important;
+        position: relative !important;
+        z-index: 100 !important;
+      }
+
       @media (max-width: 767px) {
         .shepherd-element {
-          border-radius: 0.5rem !important;
-          max-width: 90vw;
+          max-width: 90vw !important;
         }
         .shepherd-content {
           border-radius: 0.5rem 0.5rem 0 0 !important;
@@ -104,11 +137,6 @@ const EmployeeDirectoryTour: React.FC<EmployeeDirectoryTourProps> = ({ onComplet
         .shepherd-header {
           padding: 0.75rem !important;
           border-radius: 0.5rem 0.5rem 0 0 !important;
-        }
-        .shepherd-arrow {
-          width: 0.75rem;
-          height: 1.125rem;
-          bottom: -0.5625rem;
         }
         .shepherd-footer {
           padding: 0.75rem 1rem 1rem;
@@ -137,14 +165,14 @@ const EmployeeDirectoryTour: React.FC<EmployeeDirectoryTourProps> = ({ onComplet
     `;
     document.head.appendChild(style);
 
-    /* ------------------------------
-       BUTTON LOGIC
-    ------------------------------ */
-    const getButtons = (index: number, stepId?: string) => {
+    // Button logic
+    const getButtons = (index) => {
       const skip = {
         text: "Skip",
         action: () => {
           tour.cancel();
+          setIsTourActive(false);
+          localStorage.setItem("taskManagementTourCompleted", "true");
           onComplete?.();
         },
         classes: "shepherd-skip",
@@ -152,13 +180,17 @@ const EmployeeDirectoryTour: React.FC<EmployeeDirectoryTourProps> = ({ onComplet
 
       const back = {
         text: "Back",
-        action: tour.back,
+        action: () => {
+          tour.back();
+        },
         classes: "shepherd-back",
       };
 
       const next = {
         text: "Next",
-        action: tour.next,
+        action: () => {
+          tour.next();
+        },
         classes: "shepherd-next",
       };
 
@@ -166,82 +198,52 @@ const EmployeeDirectoryTour: React.FC<EmployeeDirectoryTourProps> = ({ onComplet
         text: "Finish",
         action: () => {
           tour.complete();
+          setIsTourActive(false);
+          localStorage.setItem("taskManagementTourCompleted", "true");
           onComplete?.();
         },
         classes: "shepherd-finish",
       };
 
-      // Special buttons for the actions menu step
-      if (stepId === 'table-actions-menu') {
-        const editEmployee = {
-          text: "Edit Employee",
-          action: () => {
-            // Navigate to edit employee page
-            sessionStorage.setItem('triggerPageTour', 'edit-employee');
-            localStorage.removeItem('employeeEditTourCompleted');
-            window.location.href = '/content/user/edit/';
-          },
-          classes: "shepherd-next",
-        };
-
-        const assignTask = {
-          text: "Assign Task",
-          action: () => {
-            // Navigate to task assignment page
-            sessionStorage.setItem('triggerPageTour', 'task-assignment');
-            localStorage.removeItem('taskManagementTourCompleted');
-            window.location.href = '/content/task/assign/';
-          },
-          classes: "shepherd-next",
-        };
-
-        return [skip, editEmployee, assignTask];
-      }
-
       if (index === 0) return [skip, next];
-      if (index === tourSteps.length - 1) return [skip, back, finish];
+      if (index === taskManagementTourSteps.length - 1) return [skip, back, finish];
       return [skip, back, next];
     };
 
-    /* ------------------------------
-       ADD STEPS
-    ------------------------------ */
-    tourSteps.forEach((step: any, index: number) => {
-      // For the actions menu step, we'll handle it specially
+    // Add steps to tour
+    taskManagementTourSteps.forEach((step, index) => {
       tour.addStep({
         ...step,
         title: step.title || "Tour",
-        buttons: getButtons(index, step.id),
-        // For the actions menu step, show without modal so users can click the buttons
-        when: step.id === 'table-actions-menu' ? {
-          show: () => {
-            // Remove modal overlay for this step to allow clicking
-            const overlay = document.querySelector('.shepherd-modal-overlay-container');
-            if (overlay) {
-              (overlay as HTMLElement).style.display = 'none';
-            }
-          },
-          hide: () => {
-            // Restore modal overlay for next steps
-            const overlay = document.querySelector('.shepherd-modal-overlay-container');
-            if (overlay) {
-              (overlay as HTMLElement).style.display = 'block';
-            }
-          }
-        } : undefined,
-      } as any);
+        buttons: getButtons(index),
+      });
     });
 
+    // Start the tour
     tour.start();
 
     return () => {
       tour.cancel();
       document.head.removeChild(style);
+      setIsTourActive(false);
     };
-  }, [onComplete]);
+  };
 
-  return null;
+  // Render a tour button that can be clicked to start the tour manually
+  return (
+    <div className="fixed bottom-4 right-4 z-50">
+      {!isTourActive && (
+        <button
+          onClick={startTour}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-all"
+          title="Start Task Assignment Tour"
+        >
+          <Icon name="HelpCircle" size={18} />
+          <span className="text-sm font-medium">Take Tour</span>
+        </button>
+      )}
+    </div>
+  );
 };
 
-export default EmployeeDirectoryTour;
-
+export default TaskManagementTour;

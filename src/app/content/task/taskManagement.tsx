@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import TaskListModel from "../task/components/taskListModel";
+import TaskManagementTour from "../task/components/TaskManagementTour";
 
 interface SessionData {
   url: string;
@@ -103,6 +104,7 @@ const TaskManagement = () => {
   const [isjobroleList, setIsJobroleList] = useState(false);
   const [isjobroleModel, setIsJobroleModel] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [showTour, setShowTour] = useState(false);
 
   // Add state for form fields to better manage them
   const [taskDescription, setTaskDescription] = useState<string>("");
@@ -145,6 +147,23 @@ const TaskManagement = () => {
       fetchObserver();
     }
   }, [sessionData.url, sessionData.token]);
+
+  // Check if tour should start (when navigated from employee directory tour)
+  useEffect(() => {
+    const triggerTour = sessionStorage.getItem('triggerPageTour');
+    console.log('[Task Assignment] triggerPageTour value:', triggerTour);
+
+    if (triggerTour === 'task-assignment') {
+      console.log('[Task Assignment] Starting page tour automatically');
+      setShowTour(true);
+      // Clean up the flag
+      sessionStorage.removeItem('triggerPageTour');
+    }
+  }, []);
+
+  const handleTourComplete = () => {
+    setShowTour(false);
+  };
 
   // Cleanup object URLs when component unmounts
   useEffect(() => {
@@ -1190,6 +1209,9 @@ const TaskManagement = () => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Tour Component */}
+      {showTour && <TaskManagementTour onComplete={handleTourComplete} onSwitchView={() => { }} />}
     </>
   );
 };

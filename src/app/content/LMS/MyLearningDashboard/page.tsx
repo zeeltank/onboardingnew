@@ -135,7 +135,7 @@ export default function HomePage() {
       },
       {
         id: 'browse-courses',
-        title: '📚 Browse Courses',
+        title: 'Browse Courses',
         text: 'Click this button to browse and discover new courses available for you.',
         attachTo: {
           element: '#tour-browse-courses',
@@ -155,7 +155,7 @@ export default function HomePage() {
       },
       {
         id: 'progress-overview',
-        title: '📊 Progress Overview',
+        title: 'Progress Overview',
         text: 'This section shows your learning progress at a glance. You can see courses in progress, completed courses, skills earned, and learning hours.',
         attachTo: {
           element: '#tour-progress-overview',
@@ -175,7 +175,7 @@ export default function HomePage() {
       },
       {
         id: 'my-courses',
-        title: '📋 My Courses Section',
+        title: 'My Courses Section',
         text: 'This is where you manage all your courses. Switch between tabs to view courses in progress or completed courses.',
         attachTo: {
           element: '#tour-my-courses',
@@ -195,7 +195,7 @@ export default function HomePage() {
       },
       {
         id: 'course-grid',
-        title: '📚 Course Cards',
+        title: 'Course Cards',
         text: 'Each course card shows the course title, thumbnail, progress, and skills. Click to view details or continue learning.',
         attachTo: {
           element: '#tour-course-grid',
@@ -215,7 +215,7 @@ export default function HomePage() {
       },
       {
         id: 'quick-actions',
-        title: '⚡ Quick Actions',
+        title: 'Quick Actions',
         text: 'Access frequently used learning actions quickly. Search for courses, view certificates, and more.',
         attachTo: {
           element: '#tour-quick-actions',
@@ -235,7 +235,7 @@ export default function HomePage() {
       },
       {
         id: 'skill-progress',
-        title: '📈 Skill Progress Tracker',
+        title: 'Skill Progress Tracker',
         text: 'Track your skill development over time. See your proficiency levels and identify areas for improvement.',
         attachTo: {
           element: '#tour-skill-progress',
@@ -255,7 +255,7 @@ export default function HomePage() {
       },
       {
         id: 'learning-calendar',
-        title: '📅 Learning Calendar',
+        title: 'Learning Calendar',
         text: 'View your scheduled learning activities and deadlines. Plan your study time effectively.',
         attachTo: {
           element: '#tour-learning-calendar',
@@ -275,7 +275,7 @@ export default function HomePage() {
       },
       {
         id: 'learning-stats',
-        title: '📊 Learning Statistics',
+        title: 'Learning Statistics',
         text: 'Detailed analytics and statistics about your learning journey.',
         attachTo: {
           element: '#tour-learning-stats',
@@ -298,7 +298,7 @@ export default function HomePage() {
       },
       {
         id: 'tour-complete',
-        title: '🎉 Tour Complete!',
+        title: 'Tour Complete!',
         text: 'Congratulations! You now know how to navigate your Learning Dashboard. Happy learning!',
         attachTo: {
           element: '#tour-page-header',
@@ -352,7 +352,7 @@ export default function HomePage() {
         .shepherd-theme-custom .shepherd-header {
           background: linear-gradient(135deg, #007BE5 0%, #0056b3 100%);
           color: white;
-          border-radius: 12px 12px 0 0;
+          border-radius: 5px 5px 0 0;
           padding: 16px 20px;
         }
         .shepherd-theme-custom .shepherd-title {
@@ -390,6 +390,13 @@ export default function HomePage() {
           box-shadow: 0 10px 40px rgba(0, 123, 229, 0.3);
           border-radius: 12px;
           max-width: 400px;
+        }
+        .shepherd-theme-custom.shepherd-element {
+          position: relative !important;
+          z-index: 9999 !important;
+        }
+        .shepherd-theme-custom .shepherd-modal-overlay {
+          z-index: 9998 !important;
         }
       `}</style>
       <div className="mb-5">
